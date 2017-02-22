@@ -1,20 +1,23 @@
 import csv
+import json
 from HMM import unsupervised_HMM
-from hmmlearn.hmm import GaussianHMM
+# from hmmlearn.hmm import GaussianHMM
 
-
+def read_data(dest):
+    with open(dest, 'r') as f:
+        return json.load(f)
 
 ## Trains an unsupervised HMM on data X using n_states.
 def train(X, n_states, name):
     
     # Fit model
-    HMM = unsupervised_HMM(X, n_states)
+    HMM = unsupervised_HMM(X, n_states, 1000)
     A = HMM.A
     O = HMM.O
     
     # Using hmm learn
     #HMM = GaussianHMM(n_components=n_states)
-    #HMM.fit(X)
+    #HMM.fit(X) 
     #A = HMM.transmat_
     #O = HMM.
     
@@ -55,6 +58,14 @@ def writeModel(A, O, name):
         for r in O:
             wr.writerow(r)
             
-Ot = [[.7, .4, .5], [.3, .6, .8]]
-At = [[.7, .4, .5], [.3, .6, .8], [.5, .6, .7]]
-writeModel(At, Ot, "test")
+#Ot = [[.7, .4, .5], [.3, .6, .8]]
+#At = [[.7, .4, .5], [.3, .6, .8], [.5, .6, .7]]
+#writeModel(At, Ot, "test")
+
+def main():
+    X = read_data('data\\reverse_num_tokenized.json')
+    
+    # Change the number of states and model name here before your run!!!!!!!
+    train(X, 6, 'shakespeare_6_states')
+
+main()
