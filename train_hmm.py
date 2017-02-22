@@ -22,6 +22,7 @@ def train(X, n_states, name):
     print('')
     print('')    
     
+    # Write trained model to files
     writeModel(HMM.A, HMM.O, name)
 
 
