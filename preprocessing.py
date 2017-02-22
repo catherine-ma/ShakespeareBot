@@ -11,8 +11,8 @@ from nltk import word_tokenize
 import csv
 
 
-WORD_LIST = "words.csv"
-ST_FILE = "st_words.csv"
+WORD_LIST = "data/words.csv"
+ST_FILE = "data/st_words.csv"
 DATA_FILE = "data/shakespeare.txt"
 
 
@@ -71,7 +71,6 @@ def write_word_list(dest, words):
     with open(dest, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"')
         wr.writerow(list(words))
-        f.close()
 def read_word_list(dest):
     with open(dest, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
@@ -85,43 +84,95 @@ def pos_tokenize(tokenized_lines):
     return [nltk.pos_tag(l) for l in tokenized_lines]
 
 
-def process_text(file_name):
-	with open(file_name) as data_file:
-		lines = data_file.readlines()
+def process_text_by_line(file_name):
+    with open(file_name) as data_file:
+        lines = data_file.readlines()
 
-	poem_lines = []
+    poem_lines = []
 
-	for i in range(len(lines)):
-		if lines[i][0:3] != '   ' and lines[i] != '\n':
-			poem_lines.append(lines[i].strip())
+    for i in range(len(lines)):
+        if lines[i][0:3] != '   ' and lines[i] != '\n':
+            poem_lines.append(lines[i].strip())
 
-	return poem_lines
+    return poem_lines
 
 def create_stress_dict(poem_words):
-	stress_dict = nltk.corpus.cmudict.dict()
-	my_stress_dict = {}
-	nonwords = []
+    stress_dict = nltk.corpus.cmudict.dict()
+    my_stress_dict = {}
+    nonwords = []
 
-	for i in range(len(poem_words)):
-		for word in poem_words[i]:
-			if word not in stress_dict.keys():
-				nonwords.append(word)
-			else:
-				my_stress_dict[word] = stress_dict[word]
+    for i in range(len(poem_words)):
+        for word in poem_words[i]:
+            if word not in stress_dict.keys():
+                nonwords.append(word)
+            else:
+                my_stress_dict[word] = stress_dict[word]
 
-	for word in my_stress_dict.keys():
-		phoneme = my_stress_dict[word][0]
-		syls = []
+    for word in my_stress_dict.keys():
+        phoneme = my_stress_dict[word][0]
+        syls = []
 
-		for phon in phoneme:
-			if '0' in phon:
-				syls.append(0)
-			elif '1' in phon:
-				syls.append(1)
+        for phon in phoneme:
+            if '0' in phon:
+                syls.append(0)
+            elif '1' in phon:
+                syls.append(1)
 
-		my_stress_dict[word] = syls
+        my_stress_dict[word] = syls
 
-	return my_stress_dict, nonwords
+    return my_stress_dict, nonwords
+
+def process_text_by_poem(file_name):
+    with open(file_name) as data_file:
+        lines = data_file.readlines()
+
+    poems = []
+    poem = []
+
+    for i in range(len(lines)):
+        if lines[i][0:3] == '\n':
+            if poem != []:
+                poems.append(poem)
+                poem = []
+        elif lines[i][0:3] != '   ' and lines[i] != '\n':
+            poem.append(lines[i].strip())
+
+    poems.append(poem)
+    return poems
+
+def process_text(poem):
+    for i in range(len(poems)):
+        if lines[i][0:3] != '   ' and lines[i] != '\n':
+            poem_lines.append(lines[i].strip())
+
+    return poem_lines
+
+
+def get_rhyme_pairs(poems):
+    rhyme_pairs = []
+
+    for i in range(len(poems)):
+        if len(poems[i]) == 14:
+            lw = []
+
+            for line in poems[i]:
+                words = line.split(' ')
+                last_word = words[-1]
+
+                if last_word[-1].isalpha() == False:
+                    last_word = last_word[:-1]
+
+                lw.append(last_word)
+
+            rhyme_pairs.append((lw[0], lw[2]))
+            rhyme_pairs.append((lw[1], lw[3]))
+            rhyme_pairs.append((lw[4], lw[6]))
+            rhyme_pairs.append((lw[5], lw[7]))
+            rhyme_pairs.append((lw[8], lw[10]))
+            rhyme_pairs.append((lw[9], lw[11]))
+            rhyme_pairs.append((lw[12], lw[13]))
+
+    return rhyme_pairs
 
 
 # This main is for testing purposes only
@@ -130,10 +181,11 @@ def main():
     lines = process_text('data/sonnet1.txt')
     tokenized_lines = tokenize(lines)
     tokpos_lines = pos_tokenize(tokenized_lines)
-    my_stress_dict, nonwords = create_stress_dict(lines)
-    print my_stress_dict, nonwords
+    # my_stress_dict, nonwords = create_stress_dict(lines)
+    # print my_stress_dict, nonwords
 
     print read_word_list(WORD_LIST)
+    print tokpos_lines
 
 
 if __name__ == "__main__":

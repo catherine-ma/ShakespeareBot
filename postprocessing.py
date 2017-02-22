@@ -6,7 +6,7 @@ postprocessing.py
 import re
 import csv
 
-ST_FILE = "st_words.csv"
+ST_FILE = "data/st_words.csv"
 
 '''
 Read and write to a file ezpz.
@@ -40,6 +40,10 @@ def reintroduce_st(str):
             else:
                 break
     print str
+
+
+def fix_hyphens(str):
+    return str.replace(" - ", "-")
 
 
 # This main function is for testing purposes only
