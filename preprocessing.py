@@ -11,8 +11,8 @@ from nltk import word_tokenize
 import csv
 
 
-WORD_LIST = "words.csv"
-ST_FILE = "st_words.csv"
+WORD_LIST = "data/words.csv"
+ST_FILE = "data/st_words.csv"
 DATA_FILE = "data/shakespeare.txt"
 
 
@@ -71,7 +71,6 @@ def write_word_list(dest, words):
     with open(dest, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"')
         wr.writerow(list(words))
-        f.close()
 def read_word_list(dest):
     with open(dest, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
@@ -130,10 +129,11 @@ def main():
     lines = process_text('data/sonnet1.txt')
     tokenized_lines = tokenize(lines)
     tokpos_lines = pos_tokenize(tokenized_lines)
-    my_stress_dict, nonwords = create_stress_dict(lines)
-    print my_stress_dict, nonwords
+    # my_stress_dict, nonwords = create_stress_dict(lines)
+    # print my_stress_dict, nonwords
 
     print read_word_list(WORD_LIST)
+    print tokpos_lines
 
 
 if __name__ == "__main__":
