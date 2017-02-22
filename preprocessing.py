@@ -190,6 +190,10 @@ def main():
     lines = process_text(DATA_FILE)
     # lines = process_text('data/sonnet1.txt')
     tokenized_lines = tokenize(lines)
+    
+    # reverse every line
+    tokenized_lines = [line[::-1] for line in tokenized_lines]
+
     tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
     # my_stress_dict, nonwords = create_stress_dict(lines)
     # print my_stress_dict, nonwords
