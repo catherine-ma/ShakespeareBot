@@ -203,7 +203,7 @@ def word_to_num(tokenized_lines, wordset):
 def process_data():
     lines = process_text(DATA_FILE)
     # lines = process_text('data/sonnet1.txt')
-    tokenized_lines, wordset = tokenize(lines)
+    tokenized_lines, wordset, st_words = tokenize(lines)
     
     # reverse every line
     tokenized_lines = [line[::-1] for line in tokenized_lines]
