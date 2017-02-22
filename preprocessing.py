@@ -18,22 +18,48 @@ DATA_FILE = "data/shakespeare.txt"
 def tokenize(lines):
     '''
     Tokenize a list of lines. Returns a list of tokenized sentences. Each
-    tokenized sentence is a list of tokens (words). All words are lowercased.
+    tokenized sentence is a list of tokens (words).
+
+    All words are lowercased.
+    Hyphenated words are split into three words (word, hyphen, word).
+    Words with past tense 'st at the end have 'st removed and word stored for
+    later postprocessing.
 
     Output the set of all words to a file to be used as the indices to the
     emission matrix.
     '''
-    tokenized_lines = [nltk.word_tokenize(l) for l in lines]
-    tokenized_lines = [[word.lower() for word in line] for line in tokenized_lines]
+    # lowercase everything
+    lines = [line.lower() for line in lines]
+    # split hyphenated words into three words
+    lines = [line.replace("-", " - ") for line in lines]
+    
+    toke_lines = [nltk.word_tokenize(l) for l in lines]
+    
+    # words ending in "'st" such as frown'st.
+    new_lines = []
+    st_words = []
+    for line in toke_lines:
+        new_line = []
+        for word in line:
+            if word.endswith("'st"):
+                new_line.append(word[:-3])
+                st_words = word[:-3]
+            else:
+                new_line.append(word)
+        new_lines.append(new_line)
+    toke_lines = new_lines
 
+    ### TODO: do some postprocessing with st_words somewhere
+
+    # find unique words and write to word_list file
     words = set()
-    for line in tokenized_lines:
+    for line in toke_lines:
         for word in line:
             words.add(word.lower())
 
     write_word_list(words)
 
-    return tokenized_lines
+    return toke_lines
 
 
 '''
