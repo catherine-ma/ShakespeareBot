@@ -11,7 +11,8 @@ from nltk import word_tokenize
 import csv
 
 
-WORD_LIST = "words.csv"
+WORD_LIST = "data/words.csv"
+ST_FILE = "data/st_words.csv"
 DATA_FILE = "data/shakespeare.txt"
 
 
@@ -43,13 +44,14 @@ def tokenize(lines):
         for word in line:
             if word.endswith("'st"):
                 new_line.append(word[:-3])
-                st_words = word[:-3]
+                st_words.append(word[:-3])
             else:
                 new_line.append(word)
         new_lines.append(new_line)
     toke_lines = new_lines
 
-    ### TODO: do some postprocessing with st_words somewhere
+    # save st words
+    write_word_list(ST_FILE, list(set(st_words)))
 
     # find unique words and write to word_list file
     words = set()
@@ -57,21 +59,20 @@ def tokenize(lines):
         for word in line:
             words.add(word.lower())
 
-    write_word_list(words)
+    write_word_list(WORD_LIST, words)
 
     return toke_lines
 
 
 '''
-Read and write to the file WORD_LIST.
+Read and write to a file ezpz.
 '''
-def write_word_list(words):
-    with open(WORD_LIST, 'w') as f:
+def write_word_list(dest, words):
+    with open(dest, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"')
         wr.writerow(list(words))
-        f.close()
-def read_word_list():
-    with open(WORD_LIST, 'r') as f:
+def read_word_list(dest):
+    with open(dest, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
         return [row for row in rd][0]
 
@@ -174,7 +175,9 @@ def get_rhyme_pairs(poems):
     return rhyme_pairs
 
 
+# This main is for testing purposes only
 def main():
+<<<<<<< HEAD
     lines = process_text_by_line(DATA_FILE)
     #tokenized_lines = tokenize(lines)
     #tokpos_lines = pos_tokenize(tokenized_lines)
@@ -182,6 +185,17 @@ def main():
     #poems = process_text_by_poem(DATA_FILE)
     #rhyme_pairs = get_rhyme_pairs(poems)
     #print read_word_list()
+=======
+    lines = process_text(DATA_FILE)
+    lines = process_text('data/sonnet1.txt')
+    tokenized_lines = tokenize(lines)
+    tokpos_lines = pos_tokenize(tokenized_lines)
+    # my_stress_dict, nonwords = create_stress_dict(lines)
+    # print my_stress_dict, nonwords
+
+    print read_word_list(WORD_LIST)
+    print tokpos_lines
+>>>>>>> 53ee2ae5a513cfc01e81cc16300a576b72fdc15b
 
 
 if __name__ == "__main__":
