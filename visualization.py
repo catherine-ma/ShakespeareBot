@@ -35,6 +35,9 @@ def statePartsOfSpeech(O, PoS):
 #PoSt = ['NN', 'NN', 'V']
 #print statePartsOfSpeech(Ot, PoSt)
 
+def stateNumWords(O):
+    pass
+
 """
 ## Draw Markov diagram. 
 def graphHMM(A):
