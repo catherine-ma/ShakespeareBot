@@ -12,6 +12,7 @@ import csv
 
 
 WORD_LIST = "words.csv"
+ST_FILE = "st_words.csv"
 DATA_FILE = "data/shakespeare.txt"
 
 
@@ -43,13 +44,14 @@ def tokenize(lines):
         for word in line:
             if word.endswith("'st"):
                 new_line.append(word[:-3])
-                st_words = word[:-3]
+                st_words.append(word[:-3])
             else:
                 new_line.append(word)
         new_lines.append(new_line)
     toke_lines = new_lines
 
-    ### TODO: do some postprocessing with st_words somewhere
+    # save st words
+    write_word_list(ST_FILE, list(set(st_words)))
 
     # find unique words and write to word_list file
     words = set()
@@ -57,21 +59,21 @@ def tokenize(lines):
         for word in line:
             words.add(word.lower())
 
-    write_word_list(words)
+    write_word_list(WORD_LIST, words)
 
     return toke_lines
 
 
 '''
-Read and write to the file WORD_LIST.
+Read and write to a file ezpz.
 '''
-def write_word_list(words):
-    with open(WORD_LIST, 'w') as f:
+def write_word_list(dest, words):
+    with open(dest, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"')
         wr.writerow(list(words))
         f.close()
-def read_word_list():
-    with open(WORD_LIST, 'r') as f:
+def read_word_list(dest):
+    with open(dest, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
         return [row for row in rd][0]
 
@@ -111,12 +113,13 @@ def create_stress_dict(poem_words):
 	return my_stress_dict
 
 
+# This main is for testing purposes only
 def main():
     lines = process_text(DATA_FILE)
     tokenized_lines = tokenize(lines)
     tokpos_lines = pos_tokenize(tokenized_lines)
 
-    print read_word_list()
+    print read_word_list(WORD_LIST)
 
 
 if __name__ == "__main__":
