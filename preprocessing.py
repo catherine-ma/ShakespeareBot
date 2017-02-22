@@ -95,6 +95,21 @@ def process_text(file_name):
 
 	return poem_lines
 
+def create_stress_dict(poem_words):
+	stress_dict = nltk.corpus.cmudict.dict()
+	my_stress_dict = {}
+	nonwords = []
+
+	for i in range(len(poem_words)):
+		for word in poem_words[i]:
+			if word not in stress_dict.keys():
+				nonwords.append(word)
+			else:
+				my_stress_dict[word] = stress_dict[word]
+
+	#return nonwords
+	return my_stress_dict
+
 
 def main():
     lines = process_text(DATA_FILE)
