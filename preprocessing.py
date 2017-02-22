@@ -14,7 +14,12 @@ import json
 
 WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
-ST_FILE = "data/st_words.csv"
+ST_FILE = "data/st_words.json"
+TOKENIZED_WORDS = "data/tokenized_words.json"
+TOKPOS_WORDS = "data/tokpos_words.json"
+TOKPOS_POS = "data/tokpos_pos.json"
+REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
+
 DATA_FILE = "data/shakespeare.txt"
 
 
@@ -52,8 +57,8 @@ def tokenize(lines):
         new_lines.append(new_line)
     toke_lines = new_lines
 
-    # save st words
-    write_word_list(ST_FILE, list(set(st_words)))
+    # save st words later
+    st_words = list(set(st_words))
 
     # find unique words and write to word_list file
     words = set()
@@ -61,8 +66,8 @@ def tokenize(lines):
         for word in line:
             words.add(word.lower())
 
-    write_word_list(WORD_LIST, words)
-    write_data(WORD_LIST_JSON, list(words))
+    # write_word_list(WORD_LIST, words)
+    # write_data(WORD_LIST_JSON, list(words))
 
     return toke_lines, words, st_words
 
@@ -203,38 +208,32 @@ def word_to_num(tokenized_lines, wordset):
 def process_data():
     lines = process_text(DATA_FILE)
     # lines = process_text('data/sonnet1.txt')
-    tokenized_lines, wordset, st_words = tokenize(lines)
     
-    # reverse every line
-    tokenized_lines = [line[::-1] for line in tokenized_lines]
+    tokenized_lines, wordset, st_words = tokenize(lines)
+    write_data(ST_FILE, st_words)                   # save st words
+    write_data(WORD_LIST, list(wordset))            # save the wordset
+    write_data(TOKENIZED_WORDS, tokenized_lines)    # save the tokenized lines
 
-    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+    # Find parts of speech
     tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
+    write_data(TOKPOS_WORDS, tokpos_words)  # save words which line up with pos
+    write_data(TOKPOS_POS, tokpos_pos)      # save part of speech
+    
+
     # my_stress_dict, nonwords = create_stress_dict(lines)
     # print my_stress_dict, nonwords
 
-    # print read_data(WORD_LIST_JSON)
-    # print tokpos_lines
+    # reverse every line
+    tokenized_lines = [line[::-1] for line in tokenized_lines]
+    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+    write_data(REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
+
     return num_tokenized_lines
 
 
 # This main is for testing purposes only
 def main():
-    lines = process_text(DATA_FILE)
-    # lines = process_text('data/sonnet1.txt')
-    tokenized_lines, wordset, st_words = tokenize(lines)
-    
-    # reverse every line
-    tokenized_lines = [line[::-1] for line in tokenized_lines]
-
-    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
-    print num_tokenized_lines
-    tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
-    # my_stress_dict, nonwords = create_stress_dict(lines)
-    # print my_stress_dict, nonwords
-
-    # print read_data(WORD_LIST_JSON)
-    # print tokpos_lines
+    process_data()
 
 
 if __name__ == "__main__":
