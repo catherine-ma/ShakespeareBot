@@ -1,8 +1,8 @@
 import csv
 from HMM import unsupervised_HMM
-# from hmmlearn.hmm import GaussianHMM
+from hmmlearn.hmm import GaussianHMM
 
-import preprocessing as pp
+
 
 ## Trains an unsupervised HMM on data X using n_states.
 def train(X, n_states, name):
@@ -14,7 +14,7 @@ def train(X, n_states, name):
     
     # Using hmm learn
     #HMM = GaussianHMM(n_components=n_states)
-    #HMM.fit(X) 
+    #HMM.fit(X)
     #A = HMM.transmat_
     #O = HMM.
     
@@ -55,14 +55,6 @@ def writeModel(A, O, name):
         for r in O:
             wr.writerow(r)
             
-#Ot = [[.7, .4, .5], [.3, .6, .8]]
-#At = [[.7, .4, .5], [.3, .6, .8], [.5, .6, .7]]
-#writeModel(At, Ot, "test")
-
-def main():
-    X = pp.process_data()
-    
-    # Change the number of states and model name here before your run!!!!!!!
-    train(X, 6, 'shakespeare_6_states')
-
-    
+Ot = [[.7, .4, .5], [.3, .6, .8]]
+At = [[.7, .4, .5], [.3, .6, .8], [.5, .6, .7]]
+writeModel(At, Ot, "test")
