@@ -10,6 +10,10 @@ from nltk import word_tokenize
 # Then do nltk.download() and a window should pop up. Then click Downlad.
 import csv
 
+
+WORD_LIST = "words.csv"
+
+
 def tokenize(lines):
     '''
     Tokenize a list of lines. Returns a list of tokenized sentences. Each
@@ -25,12 +29,18 @@ def tokenize(lines):
         for word in line:
             words.add(word)
 
-    with open('words.csv', 'w') as f:
+    with open(WORD_LIST, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"')
         wr.writerow(list(words))
         f.close()
 
     return tokenized_lines
+
+
+def read_word_list():
+    with open(WORD_LIST, 'r') as f:
+        rd = csv.reader(f, delimiter=',', quotechar='"')
+        return [row for row in rd][0]
 
 
 def pos_tokenize(tokenized_lines):
@@ -57,9 +67,11 @@ def main():
     lines = ["Where art thou Muse that thou forget'st so long,",
     "To speak of that which gives thee all thy might?"]
     result = tokenize(lines)
-    print result
+    # print result
     result = pos_tokenize(result)
-    print result
+    # print result
+
+    print read_word_list()
 
 
 if __name__ == "__main__":
