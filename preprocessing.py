@@ -177,15 +177,6 @@ def get_rhyme_pairs(poems):
 
 # This main is for testing purposes only
 def main():
-<<<<<<< HEAD
-    lines = process_text_by_line(DATA_FILE)
-    #tokenized_lines = tokenize(lines)
-    #tokpos_lines = pos_tokenize(tokenized_lines)
-    #my_stress_dict, nonwords = create_stress_dict(lines)
-    #poems = process_text_by_poem(DATA_FILE)
-    #rhyme_pairs = get_rhyme_pairs(poems)
-    #print read_word_list()
-=======
     lines = process_text(DATA_FILE)
     lines = process_text('data/sonnet1.txt')
     tokenized_lines = tokenize(lines)
@@ -195,7 +186,6 @@ def main():
 
     print read_word_list(WORD_LIST)
     print tokpos_lines
->>>>>>> 53ee2ae5a513cfc01e81cc16300a576b72fdc15b
 
 
 if __name__ == "__main__":
