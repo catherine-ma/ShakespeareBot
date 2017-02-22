@@ -30,7 +30,7 @@ def train(X, n_states, name):
             fle.write(r)
     
     # Save the observation matrix in file
-    fname_O = "models\\" + name + "_A.txt"
+    fname_O = "models\\" + name + "_O.txt"
     with open(fname_O, "w") as fle:
         for r in HMM.O:
             fle.write(r)
