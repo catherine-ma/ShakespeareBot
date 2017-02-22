@@ -9,9 +9,11 @@ from nltk import word_tokenize
 # If you've never run nltk before, open up python terminal and type import nltk.
 # Then do nltk.download() and a window should pop up. Then click Downlad.
 import csv
+import json
 
 
 WORD_LIST = "data/words.csv"
+WORD_LIST_JSON = "data/words.json"
 ST_FILE = "data/st_words.csv"
 DATA_FILE = "data/shakespeare.txt"
 
@@ -60,8 +62,9 @@ def tokenize(lines):
             words.add(word.lower())
 
     write_word_list(WORD_LIST, words)
+    write_data(WORD_LIST_JSON, list(words))
 
-    return toke_lines
+    return toke_lines, words, st_words
 
 
 '''
@@ -75,6 +78,13 @@ def read_word_list(dest):
     with open(dest, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
         return [row for row in rd][0]
+
+def write_data(dest, data):
+    with open(dest, 'w') as f:
+        json.dump(data, f)
+def read_data(dest):
+    with open(dest, 'r') as f:
+        return json.load(f)
 
 
 def pos_tokenize(tokenized_lines):
@@ -185,20 +195,45 @@ def get_rhyme_pairs(poems):
     return rhyme_pairs
 
 
-# This main is for testing purposes only
-def main():
+def word_to_num(tokenized_lines, wordset):
+    worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
+    return [[worddict[word] for word in line] for line in tokenized_lines]
+
+
+def process_data():
     lines = process_text(DATA_FILE)
     # lines = process_text('data/sonnet1.txt')
-    tokenized_lines = tokenize(lines)
+    tokenized_lines, wordset = tokenize(lines)
     
     # reverse every line
     tokenized_lines = [line[::-1] for line in tokenized_lines]
 
+    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
     tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
     # my_stress_dict, nonwords = create_stress_dict(lines)
     # print my_stress_dict, nonwords
 
-    # print read_word_list(WORD_LIST)
+    # print read_data(WORD_LIST_JSON)
+    # print tokpos_lines
+    return num_tokenized_lines
+
+
+# This main is for testing purposes only
+def main():
+    lines = process_text(DATA_FILE)
+    # lines = process_text('data/sonnet1.txt')
+    tokenized_lines, wordset, st_words = tokenize(lines)
+    
+    # reverse every line
+    tokenized_lines = [line[::-1] for line in tokenized_lines]
+
+    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+    print num_tokenized_lines
+    tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
+    # my_stress_dict, nonwords = create_stress_dict(lines)
+    # print my_stress_dict, nonwords
+
+    # print read_data(WORD_LIST_JSON)
     # print tokpos_lines
 
 
