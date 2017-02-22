@@ -12,31 +12,38 @@ import csv
 
 
 WORD_LIST = "words.csv"
+DATA_FILE = "data/shakespeare.txt"
 
 
 def tokenize(lines):
     '''
     Tokenize a list of lines. Returns a list of tokenized sentences. Each
-    tokenized sentence is a list of tokens (words).
+    tokenized sentence is a list of tokens (words). All words are lowercased.
 
     Output the set of all words to a file to be used as the indices to the
     emission matrix.
     '''
     tokenized_lines = [nltk.word_tokenize(l) for l in lines]
+    tokenized_lines = [[word.lower() for word in line] for line in tokenized_lines]
 
     words = set()
     for line in tokenized_lines:
         for word in line:
-            words.add(word)
+            words.add(word.lower())
 
-    with open(WORD_LIST, 'w') as f:
-        wr = csv.writer(f, delimiter=',', quotechar='"')
-        wr.writerow(list(words))
-        f.close()
+    write_word_list(words)
 
     return tokenized_lines
 
 
+'''
+Read and write to the file WORD_LIST.
+'''
+def write_word_list(words):
+    with open(WORD_LIST, 'w') as f:
+        wr = csv.writer(f, delimiter=',', quotechar='"')
+        wr.writerow(list(words))
+        f.close()
 def read_word_list():
     with open(WORD_LIST, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
@@ -64,12 +71,9 @@ def process_text(file_name):
 
 
 def main():
-    lines = ["Where art thou Muse that thou forget'st so long,",
-    "To speak of that which gives thee all thy might?"]
-    result = tokenize(lines)
-    # print result
-    result = pos_tokenize(result)
-    # print result
+    lines = process_text(DATA_FILE)
+    tokenized_lines = tokenize(lines)
+    tokpos_lines = pos_tokenize(tokenized_lines)
 
     print read_word_list()
 
