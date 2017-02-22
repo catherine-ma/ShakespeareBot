@@ -81,8 +81,13 @@ def pos_tokenize(tokenized_lines):
     '''
     Tags tokens with parts of speech.
     '''
-    return [nltk.pos_tag(l) for l in tokenized_lines]
-
+    cashmeoutsigh = []  # words
+    howbowdah = []      # part of speech
+    for l in tokenized_lines:
+        for tup in nltk.pos_tag(l):
+            cashmeoutsigh.append(tup[0])
+            howbowdah.append(tup[1])
+    return cashmeoutsigh, howbowdah
 
 def process_text_by_line(file_name):
     with open(file_name) as data_file:
@@ -140,8 +145,13 @@ def process_text_by_poem(file_name):
     poems.append(poem)
     return poems
 
-def process_text(poem):
-    for i in range(len(poems)):
+def process_text(file_name):
+    with open(file_name) as data_file:
+        lines = data_file.readlines()
+
+    poem_lines = []
+
+    for i in range(len(lines)):
         if lines[i][0:3] != '   ' and lines[i] != '\n':
             poem_lines.append(lines[i].strip())
 
@@ -178,14 +188,14 @@ def get_rhyme_pairs(poems):
 # This main is for testing purposes only
 def main():
     lines = process_text(DATA_FILE)
-    lines = process_text('data/sonnet1.txt')
+    # lines = process_text('data/sonnet1.txt')
     tokenized_lines = tokenize(lines)
-    tokpos_lines = pos_tokenize(tokenized_lines)
+    tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
     # my_stress_dict, nonwords = create_stress_dict(lines)
     # print my_stress_dict, nonwords
 
-    print read_word_list(WORD_LIST)
-    print tokpos_lines
+    # print read_word_list(WORD_LIST)
+    # print tokpos_lines
 
 
 if __name__ == "__main__":
