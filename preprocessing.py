@@ -3,7 +3,9 @@ CS155 ShakespeareBot
 preprocessing.py
 '''
 
-import nltk
+from __future__ import division
+import nltk, re, pprint
+from nltk import word_tokenize
 # If you've never run nltk before, open up python terminal and type import nltk.
 # Then do nltk.download() and a window should pop up. Then click Downlad.
 import csv
@@ -38,6 +40,19 @@ def pos_tokenize(tokenized_lines):
     return [nltk.pos_tag(l) for l in tokenized_lines]
 
 
+def process_text(file_name):
+	with open(file_name) as data_file:
+		lines = data_file.readlines()
+
+	poem_lines = []
+
+	for i in range(len(lines)):
+		if lines[i][0:3] != '   ' and lines[i] != '\n':
+			poem_lines.append(lines[i].strip())
+
+	return poem_lines
+
+
 def main():
     lines = ["Where art thou Muse that thou forget'st so long,",
     "To speak of that which gives thee all thy might?"]
@@ -49,3 +64,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
