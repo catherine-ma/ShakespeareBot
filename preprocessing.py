@@ -109,15 +109,29 @@ def create_stress_dict(poem_words):
 			else:
 				my_stress_dict[word] = stress_dict[word]
 
-	#return nonwords
-	return my_stress_dict
+	for word in my_stress_dict.keys():
+		phoneme = my_stress_dict[word][0]
+		syls = []
+
+		for phon in phoneme:
+			if '0' in phon:
+				syls.append(0)
+			elif '1' in phon:
+				syls.append(1)
+
+		my_stress_dict[word] = syls
+
+	return my_stress_dict, nonwords
 
 
 # This main is for testing purposes only
 def main():
     lines = process_text(DATA_FILE)
+    lines = process_text('data/sonnet1.txt')
     tokenized_lines = tokenize(lines)
     tokpos_lines = pos_tokenize(tokenized_lines)
+    my_stress_dict, nonwords = create_stress_dict(lines)
+    print my_stress_dict, nonwords
 
     print read_word_list(WORD_LIST)
 
