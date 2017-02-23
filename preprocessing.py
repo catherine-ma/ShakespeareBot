@@ -163,19 +163,6 @@ def create_stress_dict(poem_words):
 
     return my_stress_dict, nonwords
 
-def convert_nonword_json(file_name):
-    with open(file_name, 'r') as f:
-        data = json.load(f)
-
-    new_nonwords = []
-
-    for i in range(len(data)):
-        if data[i].isalpha():
-            new_nonwords.append(data[i])
-
-    with open('new_nonword.json', 'w') as f:
-        json.dump(new_nonwords, f)
-
 def process_text_by_poem(file_name):
     with open(file_name) as data_file:
         lines = data_file.readlines()
@@ -248,6 +235,7 @@ def get_rhyme_pairs(poems):
 
 def word_to_num(lines, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
+    print worddict["'s"]
     return [[worddict[word] for word in line] for line in lines]
 
 def word_to_num_dict(d, wordset):
@@ -315,5 +303,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
+    lines = process_text(DATA_FILE)
+    tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
+    tokenized_lines = [line[::-1] for line in tokenized_lines]
+    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+
+    nonwords = read_data('data/nonword_stress.json')
+    nonwords_dict = word_to_num_dict(nonwords, wordset)
+    write_data('nonword_stress.json', nonwords_dict)
+
+
 
