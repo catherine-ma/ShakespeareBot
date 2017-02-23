@@ -239,6 +239,7 @@ def word_to_num_dict(d, wordset):
     num_d = []
     for word in d.keys():
         num_d.append([worddict[word], d[word]])
+    return num_d
 
 def process_data():
     lines = process_text(DATA_FILE)
@@ -256,6 +257,10 @@ def process_data():
     # tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
     # write_data(TOKPOS_WORDS, tokpos_words)  # save words which line up with pos
     # write_data(TOKPOS_POS, tokpos_pos)      # save part of speech
+    
+    # my_stress_dict, nonwords = create_stress_dict(lines)
+    # write_data(STRESS_DICT, my_stress_dict) # save to stressdict
+    # write_data(NONWORD, nonwords)           # save to nonwords
 
     # # reverse every line
 
