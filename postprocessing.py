@@ -8,17 +8,23 @@ import csv
 import random
 import json 
 import string
+import os
 
-WORD_LIST = "data/words.csv"
-WORD_LIST_JSON = "data/words.json"
-ST_FILE = "data/st_words.json"
-TOKENIZED_WORDS = "data/tokenized_words.json"
-TOKPOS_WORDS = "data/tokpos_words.json"
-TOKPOS_POS = "data/tokpos_pos.json"
-REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
-STRESS_DICT = "data/stress_dict.json"
-NONWORD = "data/nonword.json"
-ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
+WORD_LIST_JSON = "words.json"
+ST_FILE = "st_words.json"
+TOKENIZED_WORDS = "tokenized_words.json"
+TOKPOS_WORDS = "tokpos_words.json"
+TOKPOS_POS = "tokpos_pos.json"
+REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
+RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
+STRESS_NUM = "stress_num.json"
+STRESS_DICT = "stress_dict.json"
+NONWORD = "nonword.json"
+ENDLINE_PUNCTUATION = "endline_punctuation.json"
+NUM_TO_WORD_DICT = "num_to_word_dict.json"
+
+DATA_FILE = os.path.join("data", "shakespeare.txt")
+SPENSER_FILE = os.path.join("data", "spenser.txt")
 
 
 '''
@@ -41,11 +47,11 @@ def read_data(dest):
     with open(dest, 'r') as f:
         return json.load(f)
 
-def reintroduce_st(str):
+def reintroduce_st(str, DEST):
     '''
     Reintroduce the "'st" on the end of the words which could use it.
     '''
-    st_words = read_data(ST_FILE)
+    st_words = read_data(os.path.join(DEST, ST_FILE))
     for word in st_words:
         while True:
             worind = str.find(word)
@@ -61,7 +67,7 @@ def reintroduce_st(str):
     return str
 
 
-def get_end_punc():
+def get_end_punc(DEST):
     '''
     Returns a random punctuation mark for the end of a line. The distribution
     of punctuation returned is proportional the Shakespearean sonnets.
@@ -69,7 +75,7 @@ def get_end_punc():
     Since some lines do not have ending punctuation, this function also returns
     the empty string.
     '''
-    punctuation = read_data(ENDLINE_PUNCTUATION)
+    punctuation = read_data(os.path.join(DEST, ENDLINE_PUNCTUATION))
     count = random.random() * punctuation['linecount']
     for k, v in punctuation['punc'].iteritems():
         count -= v
@@ -122,9 +128,9 @@ def fix_punctuation(str):
     return str
 
 
-def post_process_line(str):
+def post_process_line(str, DEST):
     str = fix_hyphens(str)
-    str = reintroduce_st(str)
+    str = reintroduce_st(str, DEST)
     str = fix_punctuation(str)
     return str
 

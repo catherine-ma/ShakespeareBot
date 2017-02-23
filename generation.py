@@ -42,9 +42,9 @@ def get_HMM(name):
 
 ## Prime the ends of sonnets by generating rhyming pairs only and returning
 ## 1-word lines. 
-def prime_sonnet():
+def prime_sonnet(DEST):
     poem = [[] for i in range(14)]
-    rhyme_pairs = read_data(os.path.join("data", "spenspear", RHYME_PAIRS_NUM))
+    rhyme_pairs = read_data(os.path.join(DEST, RHYME_PAIRS_NUM))
         
     # Generate 7 rhyming word pairs and put them into the poem
     for n in range(7):
@@ -73,12 +73,12 @@ def prime_sonnet():
 
 ## Poem generated is a list of lists of integers. Each list contains a line of
 ## indexes representing words, backward. 
-def generate_sonnet(A, O):
+def generate_sonnet(A, O, DEST):
     n_states = len(A) 
     n_words = len(O[0])
-    poem = prime_sonnet()
-    stress_dict = read_data(os.path.join("data", "spenspear", STRESS_DICT))
-    encoding = read_data(os.path.join("data", "spenspear", WORD_LIST_JSON))
+    poem = prime_sonnet(DEST)
+    stress_dict = read_data(os.path.join(DEST, STRESS_DICT))
+    encoding = read_data(os.path.join(DEST, WORD_LIST_JSON))
     
     # Fill in the rest of the line
     O = np.asarray(O)
@@ -143,10 +143,10 @@ def generate_sonnet(A, O):
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
 ## lines of the poem
-def decode_sonnet(code):
+def decode_sonnet(code, DEST):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
-    encoding = read_data(os.path.join("data", "spenspear", WORD_LIST_JSON))
+    encoding = read_data(os.path.join(DEST, WORD_LIST_JSON))
     for i in range(n_lines):
         n_words = len(code[i])
         words = []
@@ -155,9 +155,10 @@ def decode_sonnet(code):
         for j in range(n_words-1, -1, -1):
             words.append(encoding[code[i][j]])
         line = str(' '.join(words).capitalize())
-        line = pp.fix_punctuation(line)
+        line = pp.post_process_line(line, DEST)
+        # line = pp.fix_punctuation(line)
         if i != n_lines - 1:
-            line += pp.get_end_punc()
+            line += pp.get_end_punc(DEST)
         else:
             line += '.'
         poem[i] = str(line)
@@ -174,8 +175,8 @@ def numSyl(stress_dict, word):
 
 ## Generate poem in the style of a haiku. Returns a list of strings containing
 ## the lines
-def generate_haiku(A, O):
-    stress_dict = read_data(os.path.join("data", "spenspear", STRESS_DICT))
+def generate_haiku(A, O, DEST):
+    stress_dict = read_data(os.path.join(DEST, STRESS_DICT))
     n_states = len(A)
     n_words = len(O[0])
     poem = [0 for i in range(3)]
@@ -203,11 +204,18 @@ def write_poem(lines, name):
             f.write(line + '\n')
 
 def main():
-    A, O = get_HMM('spenspear_10_states')
-    code = generate_sonnet(A, O)
+    use_spenser = True
+    DEST = "data"
+    if use_spenser:
+        DEST = os.path.join("data","spenspear")
+
+    # A, O = get_HMM('spenspear_10_states')
+    A, O = get_HMM('spenspear_12_states')
+    code = generate_sonnet(A, O, DEST)
     print code
     #code = [[1, 2], [3, 4]]
-    poem = decode_sonnet(code)
+    poem = decode_sonnet(code, DEST)
+    print poem
     write_poem(poem, 'test')
     #write_poem(poem, 'shakespeare_state6_it1000')
     

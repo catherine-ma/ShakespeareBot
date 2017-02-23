@@ -202,9 +202,9 @@ def process_text(file_name):
     poem_lines = []
 
     for i in range(len(lines)):
+        # If its a number or a Roman Numeral, then it must be a title row
         match = re.match("[MDCLXVI\d]+$", lines[i].strip())
         if not match and lines[i] != '\n':
-            # if lines[i][0:3] != '   ' and lines[i] != '\n':
             poem_lines.append(lines[i].strip())
 
     return poem_lines
@@ -295,11 +295,13 @@ def process_data(use_spenser=False):
     num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
     write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
 
-    # stress
-    # stress_dict, nonwords = create_stress_dict(tokenized_lines)
-    # num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    # write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
-    # write_data(os.path.join(DEST, NONWORD), nonwords)
+    ## stress
+    ## DO NOT TOUCH. DO NOT UNCOMMENT. THE GENERATED FILE IS BEING MANUALLY
+    ## CHANGED.
+    ## stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    ## num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    ## write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
+    ## write_data(os.path.join(DEST, NONWORD), nonwords)
 
 
 # This main is for testing purposes only
