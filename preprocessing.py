@@ -297,6 +297,16 @@ def main():
     use_spenser = False
     process_data(use_spenser)
 
+    # lines = process_text(DATA_FILE)
+    # tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
+    # tokenized_lines = [line[::-1] for line in tokenized_lines]
+    # num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+
+    # nonwords = read_data('data/nonword_stress.json')
+    # nonwords_dict = word_to_num_dict(nonwords, wordset)
+    # write_data('nonword_stress.json', nonwords_dict)
+
+    
     ## FIX THE STRESS DICT
     # stress_dict = read_data(os.path.join("data","spenspear",STRESS_DICT))
     # makemedict = {}
@@ -307,15 +317,7 @@ def main():
 
 
 if __name__ == "__main__":
-    #main()
-    lines = process_text(DATA_FILE)
-    tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
-    tokenized_lines = [line[::-1] for line in tokenized_lines]
-    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
-
-    nonwords = read_data('data/nonword_stress.json')
-    nonwords_dict = word_to_num_dict(nonwords, wordset)
-    write_data('nonword_stress.json', nonwords_dict)
+    main()
 
 
 
