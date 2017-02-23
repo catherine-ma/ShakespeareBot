@@ -1,9 +1,8 @@
 import csv
 import json
 import numpy as np
-import postprocessing
+import postprocessing as pp
 import random
-
 
 WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
@@ -16,8 +15,10 @@ RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
 STRESS_NUM = "data/stress_num.json"
 STRESS_DICT = "data/stress_dict.json"
 NONWORD = "data/nonword.json"
+ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
 
 DATA_FILE = "data/shakespeare.txt"
+
 
 def read_data(dest):
     with open(dest, 'r') as f:
@@ -37,14 +38,12 @@ def get_HMM(name):
     O = read_matrix(path_o)
     return A, O
 
-## Poem generated is a list of lists of integers. Each list contains a line of
-## indexes representing words, backward. 
-def generate_sonnet(A, O):
-    n_states = len(A) 
-    n_words = len(O[0])
+## Prime the ends of sonnets by generating rhyming pairs only and returning
+## 1-word lines. 
+def prime_sonnet():
     poem = [[] for i in range(14)]
     rhyme_pairs = read_data(RHYME_PAIRS_NUM)
-    
+        
     # Generate 7 rhyming word pairs and put them into the poem
     for n in range(7):
         
@@ -66,19 +65,29 @@ def generate_sonnet(A, O):
             poem[2*n+1] = b
         if n == 6:
             poem[12] = a
-            poem[13] = b
-            
+            poem[13] = b    
+    return poem
+
+
+## Poem generated is a list of lists of integers. Each list contains a line of
+## indexes representing words, backward. 
+def generate_sonnet(A, O):
+    n_states = len(A) 
+    n_words = len(O[0])
+    poem = prime_sonnet()
+    stress_dict = read_data(STRESS_DICT)   
+    
     # Fill in the rest of the line
     O = np.asarray(O)
     for i in range(14):
         
         # Keep track of number of syllables and currently ending stress
         # Stress is 1 for stressed, 0 for relaxed
-        num_syllables = 0
-        stress = 0
+        start_word = poem[i][0]
+        num_syllables = 0 #len(stress_dict[start_word][1])
+        stress = 0 #stress_dict[start_word][1][0]
         
         # Find the starting state using our rhyming word
-        start_word = poem[i][0]
         state_probs = O[:,start_word]
         prob_sum = sum(state_probs)
         state_probs = [m / prob_sum for m in state_probs]
@@ -87,7 +96,6 @@ def generate_sonnet(A, O):
         # Iterate 
         while num_syllables < 10:
             y = ys[-1]
-            print n_words, len(O[y])
             poem[i].append(int(np.random.choice(n_words, p=O[y])))
             ys.append(int(np.random.choice(n_states, p=A[y])))
             
@@ -108,10 +116,12 @@ def decode_sonnet(code):
         # Decipher the words backward
         for j in range(n_words-1, -1, -1):
             words.append(encoding[code[i][j]])
-        line = str(' '.join(words))
-        line = line.capitalize()
-        poem[i] = line
-    poem[-1] += '.'
+        line = str(' '.join(words).capitalize())
+        if i != n_lines - 1:
+            line += pp.get_end_punc()
+        else:
+            line += '.'
+        poem[i] = str(line)
     
     return poem
             
@@ -133,7 +143,7 @@ def write_poem(lines, name):
             f.write(line + '\n')
 
 def main():
-    A, O = get_HMM('shakespeare_6_states')
+    A, O = get_HMM('shakespeare_10_states')
     code = generate_sonnet(A, O)
     print code
     #code = [[1, 2], [3, 4]]
