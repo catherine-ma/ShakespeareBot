@@ -12,6 +12,7 @@ import csv
 import json
 import string
 import re
+import os
 
 WORD_LIST_JSON = "words.json"
 ST_FILE = "st_words.json"
@@ -26,8 +27,8 @@ NONWORD = "nonword.json"
 ENDLINE_PUNCTUATION = "endline_punctuation.json"
 NUM_TO_WORD_DICT = "num_to_word_dict.json"
 
-DATA_FILE = "data/shakespeare.txt"
-SPENSER_FILE = "data/spenser.txt"
+DATA_FILE = os.path.join("data", "shakespeare.txt")
+SPENSER_FILE = os.path.join("data", "spenser.txt")
 
 def tokenize(lines):
     '''
@@ -254,7 +255,7 @@ def word_to_num_dict(d, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
     num_d = {}
     for word in d.keys():
-        num_d[worddict[word]] = d[word]
+        num_d[str(worddict[word])] = d[word]
     return num_d
 
 def process_data(use_spenser=False):
@@ -266,46 +267,39 @@ def process_data(use_spenser=False):
         lines.extend(process_text(SPENSER_FILE))
     # lines = process_text('data/sonnet1.txt')
 
-    DEST = "data/"
+    DEST = "data"
     if use_spenser:
-        DEST = "data/spenspear/"
+        DEST = os.path.join("data", "spenspear")
 
     # tokenize
     tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
-    write_data(DEST + ST_FILE, st_words)                # save st words
-    write_data(DEST + WORD_LIST_JSON, list(wordset))    # save the wordset
-    write_data(DEST + TOKENIZED_WORDS, tokenized_lines) # save the tokenized lines
-    write_data(DEST + ENDLINE_PUNCTUATION, punctuation) # save the endline punc
-    write_data(DEST + NUM_TO_WORD_DICT, worddict)       # save the num to word dict
+    write_data(os.path.join(DEST, ST_FILE), st_words)   # save st words
+    write_data(os.path.join(DEST, WORD_LIST_JSON), list(wordset))   
+    write_data(os.path.join(DEST, TOKENIZED_WORDS), tokenized_lines)
+    write_data(os.path.join(DEST, ENDLINE_PUNCTUATION), punctuation)
+    write_data(os.path.join(DEST, NUM_TO_WORD_DICT), worddict)      
 
     # Find parts of speech
     tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
-    write_data(DEST + TOKPOS_WORDS, tokpos_words)       # save words which line  
-                                                        # up with pos
-    write_data(DEST + TOKPOS_POS, tokpos_pos)           # save part of speech
+    write_data(os.path.join(DEST, TOKPOS_WORDS), tokpos_words)
+    write_data(os.path.join(DEST, TOKPOS_POS), tokpos_pos)
     
-
     # reverse every line and convert to numbers
     tokenized_lines = [line[::-1] for line in tokenized_lines]
     num_tokenized_lines = word_to_num(tokenized_lines, wordset)
-    write_data(DEST + REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
+    write_data(os.path.join(DEST, REVERSE_NUM_TOKENIZED), num_tokenized_lines)
 
     # rhyme
     poems = process_text_by_poem(DATA_FILE)
     rhyme_pairs = get_rhyme_pairs(poems)
     num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
-    write_data(DEST + RHYME_PAIRS_NUM, num_rhyme_pairs)
+    write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
 
-    # # stress
-    # stress_dict, nonwords = create_stress_dict(tokenized_lines)
-    # num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    # write_data(STRESS_DICT, num_stress_dict)
-    # write_data(NONWORD, list(set(nonwords)))
     # stress
     stress_dict, nonwords = create_stress_dict(tokenized_lines)
     num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    write_data(DEST + STRESS_DICT, num_stress_dict)
-    write_data(DEST + NONWORD, nonwords)
+    write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
+    write_data(os.path.join(DEST, NONWORD), nonwords)
 
 
 # This main is for testing purposes only

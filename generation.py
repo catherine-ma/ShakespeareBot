@@ -3,20 +3,23 @@ import json
 import numpy as np
 import postprocessing as pp
 import random
+import os
 
-WORD_LIST_JSON = "data/words.json"
-ST_FILE = "data/st_words.json"
-TOKENIZED_WORDS = "data/tokenized_words.json"
-TOKPOS_WORDS = "data/tokpos_words.json"
-TOKPOS_POS = "data/tokpos_pos.json"
-REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
-RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
-STRESS_NUM = "data/stress_num.json"
-STRESS_DICT = "data/stress_dict.json"
-NONWORD = "data/nonword.json"
-ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
+WORD_LIST_JSON = "words.json"
+ST_FILE = "st_words.json"
+TOKENIZED_WORDS = "tokenized_words.json"
+TOKPOS_WORDS = "tokpos_words.json"
+TOKPOS_POS = "tokpos_pos.json"
+REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
+RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
+STRESS_NUM = "stress_num.json"
+STRESS_DICT = "stress_dict.json"
+NONWORD = "nonword.json"
+ENDLINE_PUNCTUATION = "endline_punctuation.json"
+NUM_TO_WORD_DICT = "num_to_word_dict.json"
 
-DATA_FILE = "data/shakespeare.txt"
+DATA_FILE = os.path.join("data", "shakespeare.txt")
+SPENSER_FILE = os.path.join("data", "spenser.txt")
 
 
 def read_data(dest):
@@ -31,8 +34,8 @@ def read_matrix(dest):
 
 ## Grab Hmm matrixes A and O from stored files. 
 def get_HMM(name):
-    path_a = 'models\\' + name + '_A.csv'
-    path_o = 'models\\' + name + '_O.csv'
+    path_a = os.path.join("models", name + '_A.csv')
+    path_o = os.path.join("models", name + '_O.csv')
     A = read_matrix(path_a)
     O = read_matrix(path_o)
     return A, O
@@ -41,7 +44,7 @@ def get_HMM(name):
 ## 1-word lines. 
 def prime_sonnet():
     poem = [[] for i in range(14)]
-    rhyme_pairs = read_data(RHYME_PAIRS_NUM)
+    rhyme_pairs = read_data(os.path.join("data", "spenspear", RHYME_PAIRS_NUM))
         
     # Generate 7 rhyming word pairs and put them into the poem
     for n in range(7):
@@ -74,7 +77,7 @@ def generate_sonnet(A, O):
     n_states = len(A) 
     n_words = len(O[0])
     poem = prime_sonnet()
-    stress_dict = read_data(STRESS_DICT)   
+    stress_dict = read_data(os.path.join("data", "spenspear", STRESS_DICT))
     
     # Fill in the rest of the line
     O = np.asarray(O)
@@ -83,8 +86,18 @@ def generate_sonnet(A, O):
         # Keep track of number of syllables and currently ending stress
         # Stress is 1 for stressed, 0 for relaxed
         start_word = poem[i][0]
-        num_syllables = 0 #len(stress_dict[start_word][1])
-        stress = 0 #stress_dict[start_word][1][0]
+        if str(start_word) not in stress_dict:
+            print "stress not in dict", start_word
+            start_stress = [1]
+            syllables = 1
+        else:
+            start_stress = stress_dict[str(start_word)]
+            syllables = len(start_stress)
+            if syllables == 0:
+                stress = -1
+            else:
+                stress = start_stress[0]
+        
         
         # Find the starting state using our rhyming word
         state_probs = O[:,start_word]
@@ -92,14 +105,40 @@ def generate_sonnet(A, O):
         state_probs = [m / prob_sum for m in state_probs]
         ys = [int(np.random.choice(n_states, p=state_probs))]
         
+        
         # Iterate 
-        while num_syllables < 10:
+        while syllables < 10:
             y = ys[-1]
-            poem[i].append(int(np.random.choice(n_words, p=O[y])))
+            while True:
+                cand = int(np.random.choice(n_words, p=O[y]))
+
+                if str(cand) not in stress_dict:
+                    continue
+                cand_stress = stress_dict[str(cand)]
+                cand_n_syl = len(cand_stress)
+                
+                # If the word is punctuation
+                if cand_n_syl == 0:
+                    cand_end_stress = -1
+                    cand_start_stress = -1
+                else:
+                    cand_end_stress = cand_stress[-1]
+                    cand_start_stress = cand_stress[0]
+                
+                # If the word doesn't satisfy syllable and stress conditions
+                if syllables + cand_n_syl > 10:
+                    continue
+                if cand_n_syl != 1 and cand_end_stress == stress:
+                    continue
+                break                
+            
+            stress = cand_stress[0]
+            syllables += cand_n_syl
+            poem[i].append(cand)
             ys.append(int(np.random.choice(n_states, p=A[y])))
             
-            num_syllables += 1
-            
+            print syllables
+                        
     return poem
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
@@ -107,7 +146,7 @@ def generate_sonnet(A, O):
 def decode_sonnet(code):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
-    encoding = read_data(WORD_LIST_JSON)
+    encoding = read_data(os.path.join("data", "spenspear", WORD_LIST_JSON))
     for i in range(n_lines):
         n_words = len(code[i])
         words = []
@@ -136,13 +175,13 @@ def generate_haiku(A, O):
 ## Write poem stored in lines, which has one line per row into file prefixed
 ## by name. 
 def write_poem(lines, name):
-    dest = 'poems\\' + name + '.txt'
+    dest = os.path.join("poems", name + ".txt")
     with open(dest, 'w') as f:
         for line in lines:
             f.write(line + '\n')
 
 def main():
-    A, O = get_HMM('shakespeare_10_states')
+    A, O = get_HMM('spenspear_10_states')
     code = generate_sonnet(A, O)
     print code
     #code = [[1, 2], [3, 4]]
