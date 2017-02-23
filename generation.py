@@ -1,7 +1,7 @@
 import csv
 import json
 import numpy as np
-import postprocessing
+import postprocessing as pp
 import random
 
 WORD_LIST = "data/words.csv"
@@ -116,10 +116,12 @@ def decode_sonnet(code):
         # Decipher the words backward
         for j in range(n_words-1, -1, -1):
             words.append(encoding[code[i][j]])
-        line = str(' '.join(words))
-        line = line.capitalize()
-        poem[i] = line
-    poem[-1] += '.'
+        line = str(' '.join(words).capitalize())
+        if i != n_lines - 1:
+            line += pp.get_end_punc()
+        else:
+            line += '.'
+        poem[i] = str(line)
     
     return poem
             
@@ -141,7 +143,7 @@ def write_poem(lines, name):
             f.write(line + '\n')
 
 def main():
-    A, O = get_HMM('shakespeare_9_states')
+    A, O = get_HMM('shakespeare_10_states')
     code = generate_sonnet(A, O)
     print code
     #code = [[1, 2], [3, 4]]
