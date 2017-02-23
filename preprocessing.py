@@ -4,13 +4,12 @@ preprocessing.py
 '''
 
 from __future__ import division
-import nltk, re, pprint
+import nltk
 from nltk import word_tokenize
 # If you've never run nltk before, open up python terminal and type import nltk.
-# Then do nltk.download() and a window should pop up. Then click Downlad.
+# Then do nltk.download() and a window should pop up. Then click Download.
 import csv
 import json
-
 
 WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
@@ -19,9 +18,15 @@ TOKENIZED_WORDS = "data/tokenized_words.json"
 TOKPOS_WORDS = "data/tokpos_words.json"
 TOKPOS_POS = "data/tokpos_pos.json"
 REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
+<<<<<<< HEAD
+RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
+STRESS_NUM = "data/stress_num.json"
+=======
+STRESS_DICT = "data/stress_dict.json"
+NONWORD = "data/nonword.json"
+>>>>>>> 7894d71e1a9c79b8fc63ce300f437baa9e954c92
 
 DATA_FILE = "data/shakespeare.txt"
-
 
 def tokenize(lines):
     '''
@@ -66,11 +71,7 @@ def tokenize(lines):
         for word in line:
             words.add(word.lower())
 
-    # write_word_list(WORD_LIST, words)
-    # write_data(WORD_LIST_JSON, list(words))
-
     return toke_lines, words, st_words
-
 
 '''
 Read and write to a file ezpz.
@@ -90,10 +91,6 @@ def write_data(dest, data):
 def read_data(dest):
     with open(dest, 'r') as f:
         return json.load(f)
-
-def write_rhyme_pairs(dest, words):
-    with open(dest, 'w') as f:
-        return json.dump(words, f)
 
 def pos_tokenize(tokenized_lines):
     '''
@@ -184,11 +181,22 @@ def get_rhyme_pairs(poems):
             lw = []
 
             for line in poems[i]:
-                words = line.split(' ')
-                last_word = words[-1]
+                line = line.strip()
+                line = line.lower()
+                line = line.replace("-", " - ")
 
-                if last_word[-1].isalpha() == False:
-                    last_word = last_word[:-1]
+                words = nltk.word_tokenize(line)
+
+                if words[-1].isalpha() == False:
+                    if words[-2].isalpha() == False:
+                        last_word = words[-3]
+                    else:
+                        last_word = words[-2]
+                else:
+                    last_word = words[-1]
+
+                if "'st" in last_word:
+                    last_word = last_word[-1][:-3]
 
                 lw.append(last_word)
 
@@ -203,16 +211,34 @@ def get_rhyme_pairs(poems):
     return rhyme_pairs
 
 
-def word_to_num(tokenized_lines, wordset):
+def word_to_num(lines, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
-    return [[worddict[word] for word in line] for line in tokenized_lines]
+    return [[worddict[word] for word in line] for line in lines]
 
+def word_to_num_dict(d, wordset):
+    worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
+    num_d = []
+    for word in d.keys():
+        num_d.append([worddict[word], d[word]])
 
 def process_data():
     lines = process_text(DATA_FILE)
     # lines = process_text('data/sonnet1.txt')
     
+    # tokenize
     tokenized_lines, wordset, st_words = tokenize(lines)
+<<<<<<< HEAD
+    # write_data(ST_FILE, st_words)                   # save st words
+    # write_data(WORD_LIST, list(wordset))            # save the wordset
+    # write_data(TOKENIZED_WORDS, tokenized_lines)    # save the tokenized lines
+
+    # # Find parts of speech
+    # tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
+    # write_data(TOKPOS_WORDS, tokpos_words)  # save words which line up with pos
+    # write_data(TOKPOS_POS, tokpos_pos)      # save part of speech
+
+    # # reverse every line
+=======
     write_data(ST_FILE, st_words)                   # save st words
     write_data(WORD_LIST, list(wordset))            # save the wordset
     write_data(TOKENIZED_WORDS, tokenized_lines)    # save the tokenized lines
@@ -222,16 +248,27 @@ def process_data():
     write_data(TOKPOS_WORDS, tokpos_words)  # save words which line up with pos
     write_data(TOKPOS_POS, tokpos_pos)      # save part of speech
     
+    my_stress_dict, nonwords = create_stress_dict(lines)
+    write_data(STRESS_DICT, my_stress_dict) # save to stressdict
+    write_data(NONWORD, nonwords)           # save to nonwords
 
-    # my_stress_dict, nonwords = create_stress_dict(lines)
-    # print my_stress_dict, nonwords
-
-    # reverse every line
+    # reverse every line and convert to numbers
+>>>>>>> 7894d71e1a9c79b8fc63ce300f437baa9e954c92
     tokenized_lines = [line[::-1] for line in tokenized_lines]
-    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
-    write_data(REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
+    # num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+    # write_data(REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
 
-    return num_tokenized_lines
+    # rhyme
+    # poems = process_text_by_poem(DATA_FILE)
+    # rhyme_pairs = get_rhyme_pairs(poems)
+    # num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
+    # write_data(RHYME_PAIRS_NUM, num_rhyme_pairs)
+
+    # stress
+    stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    write_data(num_stress_dict)
+    write_data(nonwords)
 
 
 # This main is for testing purposes only
@@ -241,7 +278,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 
 

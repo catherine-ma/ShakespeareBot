@@ -6,7 +6,7 @@ postprocessing.py
 import re
 import csv
 
-ST_FILE = "data/st_words.csv"
+ST_FILE = "data/st_words.json"
 
 '''
 Read and write to a file ezpz.
@@ -21,12 +21,18 @@ def read_word_list(dest):
         rd = csv.reader(f, delimiter=',', quotechar='"')
         return [row for row in rd][0]
 
+def write_data(dest, data):
+    with open(dest, 'w') as f:
+        json.dump(data, f)
+def read_data(dest):
+    with open(dest, 'r') as f:
+        return json.load(f)
 
 def reintroduce_st(str):
     '''
     Reintroduce the "'st" on the end of the words which could use it.
     '''
-    st_words = read_word_list(ST_FILE)
+    st_words = read_data(ST_FILE)
     for word in st_words:
         while True:
             worind = str.find(word)
