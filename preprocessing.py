@@ -13,17 +13,19 @@ import json
 import string
 import re
 
-WORD_LIST = "data/words.csv"
-WORD_LIST_JSON = "data/words.json"
-ST_FILE = "data/st_words.json"
-TOKENIZED_WORDS = "data/tokenized_words.json"
-TOKPOS_WORDS = "data/tokpos_words.json"
-TOKPOS_POS = "data/tokpos_pos.json"
-REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
-RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
-STRESS_DICT = "data/stress_dict.json"
-NONWORD = "data/nonword.json"
-ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
+WORD_LIST = "words.csv"
+WORD_LIST_JSON = "words.json"
+ST_FILE = "st_words.json"
+TOKENIZED_WORDS = "tokenized_words.json"
+TOKPOS_WORDS = "tokpos_words.json"
+TOKPOS_POS = "tokpos_pos.json"
+REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
+RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
+STRESS_NUM = "stress_num.json"
+STRESS_DICT = "stress_dict.json"
+NONWORD = "nonword.json"
+ENDLINE_PUNCTUATION = "endline_punctuation.json"
+NUM_TO_WORD_DICT = "num_to_word_dict.json"
 
 DATA_FILE = "data/shakespeare.txt"
 SPENSER_FILE = "data/spenser.txt"
@@ -81,13 +83,17 @@ def tokenize(lines):
     for line in toke_lines:
         for word in line:
             words.add(word.lower())
+    words = list(words)
+    numtoworddict = {}
+    for i, w in enumerate(words):
+        numtoworddict[i] = w
 
     # Pack up ending punctuation into nice dict
     punctuation = {}
     punctuation['linecount'] = linecount
     punctuation['punc'] = punc
 
-    return toke_lines, words, st_words, punctuation
+    return toke_lines, words, st_words, punctuation, numtoworddict
 
 '''
 Read and write to a file ezpz.
@@ -198,8 +204,8 @@ def process_text(file_name):
     for i in range(len(lines)):
         match = re.match("[MDCLXVI\d]+$", lines[i].strip())
         if not match and lines[i] != '\n':
-            if lines[i][0:3] != '   ' and lines[i] != '\n':
-                poem_lines.append(lines[i].strip())
+            # if lines[i][0:3] != '   ' and lines[i] != '\n':
+            poem_lines.append(lines[i].strip())
 
     return poem_lines
 
@@ -252,50 +258,61 @@ def word_to_num_dict(d, wordset):
         num_d[worddict[word]] = d[word]
     return num_d
 
-def process_data():
+def process_data(use_spenser=False):
+    '''
+    Call this one to do everything lol.
+    '''
     lines = process_text(DATA_FILE)
-    # lines = process_text(SPENSER_FILE)
+    if use_spenser:
+        lines.extend(process_text(SPENSER_FILE))
     # lines = process_text('data/sonnet1.txt')
-    
+
+    DEST = "data/"
+    if use_spenser:
+        DEST = "data/spenspear/"
+
     # tokenize
-    tokenized_lines, wordset, st_words, punctuation = tokenize(lines)
-    # write_data(ST_FILE, st_words)                   # save st words
-    # write_data(WORD_LIST, list(wordset))            # save the wordset
-    # write_data(TOKENIZED_WORDS, tokenized_lines)    # save the tokenized lines
-    # write_data(ENDLINE_PUNCTUATION, punctuation)    # save the endline punc
+    tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
+    write_data(DEST + ST_FILE, st_words)                # save st words
+    write_data(DEST + WORD_LIST, list(wordset))         # save the wordset
+    write_data(DEST + TOKENIZED_WORDS, tokenized_lines) # save the tokenized lines
+    write_data(DEST + ENDLINE_PUNCTUATION, punctuation) # save the endline punc
+    write_data(DEST + NUM_TO_WORD_DICT, worddict)       # save the num to word dict
 
-    # # Find parts of speech
-    # tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
-    # write_data(TOKPOS_WORDS, tokpos_words)  # save words which line up with pos
-    # write_data(TOKPOS_POS, tokpos_pos)      # save part of speech
+    # Find parts of speech
+    tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
+    write_data(DEST + TOKPOS_WORDS, tokpos_words)       # save words which line  
+                                                        # up with pos
+    write_data(DEST + TOKPOS_POS, tokpos_pos)           # save part of speech
     
-    # my_stress_dict, nonwords = create_stress_dict(lines)
-    # write_data(STRESS_DICT, my_stress_dict) # save to stressdict
-    # write_data(NONWORD, nonwords)           # save to nonwords
-
-    # # reverse every line
 
     # reverse every line and convert to numbers
     tokenized_lines = [line[::-1] for line in tokenized_lines]
-    # num_tokenized_lines = word_to_num(tokenized_lines, wordset)
-    # write_data(REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
+    num_tokenized_lines = word_to_num(tokenized_lines, wordset)
+    write_data(DEST + REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
 
     # rhyme
-    # poems = process_text_by_poem(DATA_FILE)
-    # rhyme_pairs = get_rhyme_pairs(poems)
-    # num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
-    # write_data(RHYME_PAIRS_NUM, num_rhyme_pairs)
+    poems = process_text_by_poem(DATA_FILE)
+    rhyme_pairs = get_rhyme_pairs(poems)
+    num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
+    write_data(DEST + RHYME_PAIRS_NUM, num_rhyme_pairs)
 
+    # # stress
+    # stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    # num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    # write_data(STRESS_DICT, num_stress_dict)
+    # write_data(NONWORD, list(set(nonwords)))
     # stress
     stress_dict, nonwords = create_stress_dict(tokenized_lines)
     num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    write_data(STRESS_DICT, num_stress_dict)
-    write_data(NONWORD, list(set(nonwords)))
+    write_data(DEST + STRESS_DICT, num_stress_dict)
+    write_data(DEST + NONWORD, nonwords)
 
 
 # This main is for testing purposes only
 def main():
-    process_data()
+    use_spenser = False
+    process_data(use_spenser)
 
 
 if __name__ == "__main__":

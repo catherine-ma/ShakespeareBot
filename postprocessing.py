@@ -7,6 +7,7 @@ import re
 import csv
 import random
 import json 
+import string
 
 WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
@@ -57,7 +58,7 @@ def reintroduce_st(str):
                 str = str.replace(word, word + "'st", 1)
             else:
                 break
-    print str
+    return str
 
 
 def get_end_punc():
@@ -82,11 +83,44 @@ def fix_hyphens(str):
 
 
 def fix_punctuation(str):
-    ### TODO: fix spaces around punctuation
+    '''
+    Fixes punctuation.
+    - Deletes punctuation at the beginning of the line.
+    - Double spaces.
+    - Corrects punctuation with random spaces around it.
+    - Two punctuation in a row.
+    '''
+    # remove punctuation at beginning of line
+    print str
+    if str.strip()[0] in string.punctuation:
+        str = str.strip()[1:]
+    
+    # remove multiple spaces in a row
+    str = ' '.join(str.split())
+
+    # remove spaces before punctuation if appropriate
+    remove_space_punctuation = ["!", ",", ".", ";", ":", "?"]
+    for punc in remove_space_punctuation:
+        str = str.replace(" " + punc, punc)
+
+    # two punctuation in a row
+    punctuation = ["!", "'", ",", ".", ";", ":", "?"]
+    newstr = ""
+    found = False
+    for c in str:
+        if c in punctuation:
+            if found:
+                continue
+            else:
+                found = True
+        else:
+            found = False
+        newstr += c
+    str = newstr
     return str
 
 
-def postProcessLine(str):
+def post_process_line(str):
     str = fix_hyphens(str)
     str = reintroduce_st(str)
     str = fix_punctuation(str)
@@ -96,9 +130,10 @@ def postProcessLine(str):
 
 # This main function is for testing purposes only
 def main():
-    sonnet = "feed forget feel frown fleet fun fudge fuck fawn fanta four fourth fleeting"
+    sonnet = "feed forget . feel frown fleet   !fun fudge fuck fawn fanta four fourth fleeting,,"
     # reintroduce_st(sonnet)
-    print get_end_punc()
+    # print get_end_punc()
+    print post_process_line(sonnet)
 
 if __name__ == "__main__":
     main()
