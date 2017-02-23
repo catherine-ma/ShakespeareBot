@@ -13,7 +13,6 @@ import json
 import string
 import re
 
-WORD_LIST = "words.csv"
 WORD_LIST_JSON = "words.json"
 ST_FILE = "st_words.json"
 TOKENIZED_WORDS = "tokenized_words.json"
@@ -274,7 +273,7 @@ def process_data(use_spenser=False):
     # tokenize
     tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
     write_data(DEST + ST_FILE, st_words)                # save st words
-    write_data(DEST + WORD_LIST, list(wordset))         # save the wordset
+    write_data(DEST + WORD_LIST_JSON, list(wordset))    # save the wordset
     write_data(DEST + TOKENIZED_WORDS, tokenized_lines) # save the tokenized lines
     write_data(DEST + ENDLINE_PUNCTUATION, punctuation) # save the endline punc
     write_data(DEST + NUM_TO_WORD_DICT, worddict)       # save the num to word dict
