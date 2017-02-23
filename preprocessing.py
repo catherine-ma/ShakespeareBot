@@ -296,16 +296,24 @@ def process_data(use_spenser=False):
     write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
 
     # stress
-    stress_dict, nonwords = create_stress_dict(tokenized_lines)
-    num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
-    write_data(os.path.join(DEST, NONWORD), nonwords)
+    # stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    # num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    # write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
+    # write_data(os.path.join(DEST, NONWORD), nonwords)
 
 
 # This main is for testing purposes only
 def main():
     use_spenser = False
     process_data(use_spenser)
+
+    ## FIX THE STRESS DICT
+    # stress_dict = read_data(os.path.join("data","spenspear",STRESS_DICT))
+    # makemedict = {}
+    # for s in stress_dict:
+    #     makemedict[str(s[0])] = s[1]
+    # print makemedict
+    # write_data(os.path.join("data","spenspear",STRESS_DICT), makemedict)
 
 
 if __name__ == "__main__":
