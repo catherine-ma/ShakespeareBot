@@ -98,7 +98,7 @@ def fix_punctuation(str):
     str = ' '.join(str.split())
 
     # remove spaces before punctuation if appropriate
-    remove_space_punctuation = ["!", ",", ".", ";", ":", "?"]
+    remove_space_punctuation = ["!", ",", ".", ";", ":", "?", "'s"]
     for punc in remove_space_punctuation:
         str = str.replace(" " + punc, punc)
 

@@ -60,6 +60,7 @@ def generate_sonnet(A, O):
     n_words = len(O[0])
     poem = prime_sonnet()
     stress_dict = read_data('data\\spenspear\\stress_dict.json')   
+    encoding = read_data('data\\spenspear\\words.json')
     
     # Fill in the rest of the line
     O = np.asarray(O)
@@ -87,16 +88,17 @@ def generate_sonnet(A, O):
         state_probs = [m / prob_sum for m in state_probs]
         ys = [int(np.random.choice(n_states, p=state_probs))]
         
-        
-        # Iterate 
+        # Iterate until each line reaches 10 syllables
         while syllables < 10:
             y = ys[-1]
             while True:
-                cand = int(np.random.choice(n_words, p=O[y]))
-
+                cand = int(np.random.choice(n_words, p=O[y]))            
                 if str(cand) not in stress_dict:
-                    continue
-                cand_stress = stress_dict[str(cand)]
+                    cand_stress = [1]
+                    print "stress not in dict", encoding[cand]
+                else:
+                    print "yay"
+                    cand_stress = stress_dict[str(cand)]
                 cand_n_syl = len(cand_stress)
                 
                 # If the word is punctuation
@@ -119,8 +121,6 @@ def generate_sonnet(A, O):
             poem[i].append(cand)
             ys.append(int(np.random.choice(n_states, p=A[y])))
             
-            print syllables
-                        
     return poem
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
@@ -137,6 +137,7 @@ def decode_sonnet(code):
         for j in range(n_words-1, -1, -1):
             words.append(encoding[code[i][j]])
         line = str(' '.join(words).capitalize())
+        line = pp.fix_punctuation(line)
         if i != n_lines - 1:
             line += pp.get_end_punc()
         else:
@@ -145,13 +146,34 @@ def decode_sonnet(code):
     
     return poem
             
-            
+## Get number of syllables. If not available, return 1 and print an error 
+## message.
+def numSyl(stress_dict, word):
+    if word in stress_dict:
+        return len(stress_dict[word])
+    print word, "not found in stress_dict"
+    return 1
 
 ## Generate poem in the style of a haiku. Returns a list of strings containing
 ## the lines
 def generate_haiku(A, O):
-    poem = []
-    
+    stress_dict = read_data('data\\spenspear\\stress_dict.json')
+    n_states = len(A)
+    n_words = len(O[0])
+    poem = [0 for i in range(3)]
+    for i in range(3):
+        if i == 1:
+            tot_syl = 7
+        else:
+            tot_syl = 5
+
+        start_word = random.randrange(n_words)
+        syl  = numSyl(stress_dict, word)
+        poem[i] = [start_word]
+        
+        while syl < tot_syl:
+            cand = int(np.random.choice(n_words, p=O[y])) 
+        
     return poem
 
 ## Write poem stored in lines, which has one line per row into file prefixed
