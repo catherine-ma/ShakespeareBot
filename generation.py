@@ -68,8 +68,7 @@ def prime_sonnet():
         if n == 6:
             poem[12] = a
             poem[13] = b    
-    return poem
-
+    return poem    
 
 ## Poem generated is a list of lists of integers. Each list contains a line of
 ## indexes representing words, backward. 
@@ -132,7 +131,7 @@ def generate_sonnet(A, O):
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
 ## lines of the poem
-def decode_sonnet(code):
+def decode_poem(code):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
     encoding = read_data(os.path.join("data", "spenspear", WORD_LIST_JSON))
@@ -221,15 +220,15 @@ def make_sonnet():
     code = generate_sonnet(A, O)
     print code
     #code = [[1, 2], [3, 4]]
-    poem = decode_sonnet(code)
-    write_poem(poem, 'test')
+    poem = decode_poem(code)
+    write_poem(poem, 'Sonnet_spenspear_states10')
     #write_poem(poem, 'shakespeare_state6_it1000')
     
 def make_haiku():
     A, O = get_HMM('spenspear_10_states')
     code = generate_haiku(A, O)
     print code
-    poem = decode_sonnet(code)
-    write_poem(poem, 'test')    
+    poem = decode_poem(code)
+    write_poem(poem, 'Haiku_spenspear_states10')    
     
-make_haiku()
+make_sonnet()
