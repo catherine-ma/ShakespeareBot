@@ -87,17 +87,15 @@ def generate_sonnet(A, O):
         # Keep track of number of syllables and currently ending stress
         # Stress is 1 for stressed, 0 for relaxed
         start_word = poem[i][0]
+        syllables = numSyl(stress_dict, start_word)
         if str(start_word) not in stress_dict:
-            print "stress not in dict", start_word
             start_stress = [1]
-            syllables = 1
         else:
-            start_stress = stress_dict[str(start_word)]
-            syllables = len(start_stress)
-            if syllables == 0:
-                stress = -1
-            else:
-                stress = start_stress[0]
+            start_stress = stress_dict[str(start_word)]    
+        if syllables == 0:
+            stress = -1
+        else:
+            stress = start_stress[0]
         
         
         # Find the starting state using our rhyming word
