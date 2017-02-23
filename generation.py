@@ -125,8 +125,6 @@ def generate_sonnet(A, O):
             poem[i].append(cand)
             ys.append(int(np.random.choice(n_states, p=A[y])))
             
-            #print encoding[cand], cand_n_syl, syllables
-            
     return poem
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
@@ -142,7 +140,8 @@ def decode_poem(code):
         # Decipher the words backward
         for j in range(n_words-1, -1, -1):
             words.append(encoding[code[i][j]])
-        line = str(' '.join(words).capitalize())
+        line = str(' '.join(words))
+        line = line.capitalize()
         line = pp.fix_punctuation(line)
         if i != n_lines - 1:
             line += pp.get_end_punc()
@@ -216,12 +215,12 @@ def write_poem(lines, name):
             f.write(line + '\n')
 
 def make_sonnet():
-    A, O = get_HMM('spenspear_10_states')
+    A, O = get_HMM('spenspear_8_states')
     code = generate_sonnet(A, O)
     print code
     #code = [[1, 2], [3, 4]]
     poem = decode_poem(code)
-    write_poem(poem, 'Sonnet_spenspear_states10')
+    write_poem(poem, 'Sonnet_spenspear_states8')
     #write_poem(poem, 'shakespeare_state6_it1000')
     
 def make_haiku():
