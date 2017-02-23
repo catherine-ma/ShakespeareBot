@@ -1,6 +1,11 @@
 import csv
+import json
 import postprocessing
 
+def read_data(dest):
+    with open(dest, 'r') as f:
+        return json.load(f)
+    
 def read_matrix(dest):
     with open(dest, 'r') as f:
         rd = csv.reader(f, delimiter=',', quotechar='"')
@@ -15,16 +20,20 @@ def get_HMM(name):
     O = read_matrix(path_o)
     return A, O
 
+## Get rhyming pairs
+def rhyming_pairs(dest):
+    pass
+
 ## Poem generated is a list of strings.
 def generate_sonnet(A, O):
-    poem = ''
+    poem = []
     
     return poem
 
 ## Generate poem in the style of a haiku. Returns a list of strings containing
 ## the lines
 def generate_haiku(A, O):
-    poem = ''
+    poem = []
     
     return poem
 
@@ -35,3 +44,8 @@ def write_poem(lines, name):
     with open(dest, 'r') as f:
         for line in lines:
             f.write(line)
+
+def main():
+    print read_data('data\\rhymes.json')
+    
+main()
