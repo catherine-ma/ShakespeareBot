@@ -4,7 +4,6 @@ import numpy as np
 import postprocessing as pp
 import random
 
-WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
 ST_FILE = "data/st_words.json"
 TOKENIZED_WORDS = "data/tokenized_words.json"
