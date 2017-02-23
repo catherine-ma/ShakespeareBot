@@ -102,8 +102,14 @@ def fix_punctuation(str):
     for punc in remove_space_punctuation:
         str = str.replace(" " + punc, punc)
 
-    # replace i with I 
+    # remove punctuation entirely if appropriate
+    remove_punctuation = ["(", ")"]
+    for punc in remove_punctuation:
+        str = str.replace(" " + punc + " ", "")
+    
+    # miscellaneous replacements
     str = str.replace(' i ', ' I ')
+    str = str.replace(",s", "'s")
     
     # two punctuation in a row
     punctuation = ["!", "'", ",", ".", ";", ":", "?"]
