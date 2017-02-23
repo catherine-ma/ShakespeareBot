@@ -175,7 +175,7 @@ def numSyl(stress_dict, word):
 ## Generate poem in the style of a haiku. Returns a list of strings containing
 ## the lines
 def generate_haiku(A, O):
-    stress_dict = read_data('data\\spenspear\\stress_dict.json')
+    stress_dict = read_data(os.path.join("data", "spenspear", STRESS_DICT))
     n_states = len(A)
     n_words = len(O[0])
     poem = [0 for i in range(3)]
