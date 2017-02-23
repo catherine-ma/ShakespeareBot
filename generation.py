@@ -20,15 +20,50 @@ def get_HMM(name):
     O = read_matrix(path_o)
     return A, O
 
-## Get rhyming pairs
-def rhyming_pairs(dest):
-    pass
-
-## Poem generated is a list of strings.
+## Poem generated is a list of lists of integers. Each list contains a line of
+## indexes representing words, backward. 
 def generate_sonnet(A, O):
-    poem = []
+    poem = [[] for i in range(14)]
+    rhyme_pairs = read_data('data\\rhyme_pairs.json')
+    
+    # Generate 7 rhyming lines
+    for n in range(7):
+        line1 = []
+        line2 = []
+        
+        
+        
+        # Place them in current place in poem
+        if n == 6:
+            poem[12] = line1
+            poem[13] = line2
+        else:
+            poem[n]   = line1
+            poem[n+2] = line2
+            
+    return poem
+
+## Decodes each line of a poem of integers. Returns a list of strings with the
+## lines of the poem
+def decode_sonnet(code, encoding_dest):
+    n_lines = len(code)
+    poem = ['' for i in range(n_lines)]
+    encoding = read_data(encoding_dest)
+    for i in range(n_lines):
+        n_words = len(code[i])
+        words = []
+        
+        # Decipher the words backward
+        for j in range(n_words-1, -1, -1):
+            words.append(encoding[code[i][j]])
+        line = str(' '.join(words))
+        line = line.capitalize()
+        poem[i] = line
+    poem[-1] += '.'
     
     return poem
+            
+            
 
 ## Generate poem in the style of a haiku. Returns a list of strings containing
 ## the lines
@@ -41,11 +76,16 @@ def generate_haiku(A, O):
 ## by name. 
 def write_poem(lines, name):
     dest = 'poems\\' + name + '.txt'
-    with open(dest, 'r') as f:
+    with open(dest, 'w') as f:
         for line in lines:
-            f.write(line)
+            f.write(line + '\n')
 
 def main():
-    print read_data('data\\rhymes.json')
+    A, O = get_HMM('shakespeare_6_states')
+    #code = generate_sonnet(A, O)
+    code = [[1, 2], [3, 4]]
+    poem = decode_sonnet(code, 'data\\words.json')
+    write_poem(poem, 'test')
+    #write_poem(poem, 'shakespeare_state6_it1000')
     
 main()
