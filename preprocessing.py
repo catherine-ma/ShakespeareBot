@@ -11,6 +11,7 @@ from nltk import word_tokenize
 import csv
 import json
 import string
+import re
 
 WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
@@ -20,12 +21,12 @@ TOKPOS_WORDS = "data/tokpos_words.json"
 TOKPOS_POS = "data/tokpos_pos.json"
 REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
 RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
-STRESS_NUM = "data/stress_num.json"
 STRESS_DICT = "data/stress_dict.json"
 NONWORD = "data/nonword.json"
 ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
 
 DATA_FILE = "data/shakespeare.txt"
+SPENSER_FILE = "data/spenser.txt"
 
 def tokenize(lines):
     '''
@@ -157,6 +158,19 @@ def create_stress_dict(poem_words):
 
     return my_stress_dict, nonwords
 
+def convert_nonword_json(file_name):
+    with open(file_name, 'r') as f:
+        data = json.load(f)
+
+    new_nonwords = []
+
+    for i in range(len(data)):
+        if data[i].isalpha():
+            new_nonwords.append(data[i])
+
+    with open('new_nonword.json', 'w') as f:
+        json.dump(new_nonwords, f)
+
 def process_text_by_poem(file_name):
     with open(file_name) as data_file:
         lines = data_file.readlines()
@@ -182,8 +196,10 @@ def process_text(file_name):
     poem_lines = []
 
     for i in range(len(lines)):
-        if lines[i][0:3] != '   ' and lines[i] != '\n':
-            poem_lines.append(lines[i].strip())
+        match = re.match("[MDCLXVI\d]+$", lines[i].strip())
+        if not match and lines[i] != '\n':
+            if lines[i][0:3] != '   ' and lines[i] != '\n':
+                poem_lines.append(lines[i].strip())
 
     return poem_lines
 
@@ -225,7 +241,6 @@ def get_rhyme_pairs(poems):
 
     return rhyme_pairs
 
-
 def word_to_num(lines, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
     return [[worddict[word] for word in line] for line in lines]
@@ -239,6 +254,7 @@ def word_to_num_dict(d, wordset):
 
 def process_data():
     lines = process_text(DATA_FILE)
+    lines = process_text(SPENSER_FILE)
     # lines = process_text('data/sonnet1.txt')
     
     # tokenize
@@ -271,10 +287,10 @@ def process_data():
     # write_data(RHYME_PAIRS_NUM, num_rhyme_pairs)
 
     # stress
-    stress_dict, nonwords = create_stress_dict(tokenized_lines)
-    num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    write_data(STRESS_DICT, num_stress_dict)
-    write_data(NONWORD, nonwords)
+    # stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    # num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    # write_data(STRESS_DICT, num_stress_dict)
+    # write_data(NONWORD, nonwords)
 
 
 # This main is for testing purposes only
@@ -284,5 +300,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
