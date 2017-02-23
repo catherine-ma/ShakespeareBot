@@ -90,6 +90,9 @@ def read_data(dest):
     with open(dest, 'r') as f:
         return json.load(f)
 
+def write_rhyme_pairs(dest, words):
+    with open(dest, 'w') as f:
+        return json.dump(words, f)
 
 def pos_tokenize(tokenized_lines):
     '''
@@ -238,4 +241,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
 
