@@ -63,9 +63,9 @@ def writeModel(A, O, name):
 #writeModel(At, Ot, "test")
 
 def main():
-    X = read_data('data\\reverse_num_tokenized.json')
+    X = read_data('data/reverse_num_tokenized.json')
     
     # Change the number of states and model name here before your run!!!!!!!
-    train(X, 6, 'shakespeare_6_states')
+    train(X, 20, 'shakespeare_20_states')
 
 main()

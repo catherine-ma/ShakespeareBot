@@ -19,6 +19,8 @@ TOKENIZED_WORDS = "data/tokenized_words.json"
 TOKPOS_WORDS = "data/tokpos_words.json"
 TOKPOS_POS = "data/tokpos_pos.json"
 REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
+STRESS_DICT = "data/stress_dict.json"
+NONWORD = "data/nonword.json"
 
 DATA_FILE = "data/shakespeare.txt"
 
@@ -65,9 +67,6 @@ def tokenize(lines):
     for line in toke_lines:
         for word in line:
             words.add(word.lower())
-
-    # write_word_list(WORD_LIST, words)
-    # write_data(WORD_LIST_JSON, list(words))
 
     return toke_lines, words, st_words
 
@@ -209,6 +208,7 @@ def process_data():
     lines = process_text(DATA_FILE)
     # lines = process_text('data/sonnet1.txt')
     
+    # tokenize
     tokenized_lines, wordset, st_words = tokenize(lines)
     write_data(ST_FILE, st_words)                   # save st words
     write_data(WORD_LIST, list(wordset))            # save the wordset
@@ -219,11 +219,11 @@ def process_data():
     write_data(TOKPOS_WORDS, tokpos_words)  # save words which line up with pos
     write_data(TOKPOS_POS, tokpos_pos)      # save part of speech
     
+    my_stress_dict, nonwords = create_stress_dict(lines)
+    write_data(STRESS_DICT, my_stress_dict) # save to stressdict
+    write_data(NONWORD, nonwords)           # save to nonwords
 
-    # my_stress_dict, nonwords = create_stress_dict(lines)
-    # print my_stress_dict, nonwords
-
-    # reverse every line
+    # reverse every line and convert to numbers
     tokenized_lines = [line[::-1] for line in tokenized_lines]
     num_tokenized_lines = word_to_num(tokenized_lines, wordset)
     write_data(REVERSE_NUM_TOKENIZED, num_tokenized_lines) # save the thing
