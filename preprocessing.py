@@ -246,6 +246,11 @@ def word_to_num_dict(d, wordset):
         num_d[str(worddict[word])] = d[word]
     return num_d
 
+def merge_dicts(d1, d2):
+    d = d1.copy()
+    d.update(d2)
+    return d
+
 def process_data(use_spenser=False):
     '''
     Call this one to do everything lol.
@@ -318,6 +323,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    # stress_dict = read_data('data/stress_dict.json')
+    # stress_dict_2 = read_data('data/spenspear/stress_dict.json')
+    # merged_dict = merge_dicts(stress_dict, stress_dict_2)
+    # write_data('stress_dict.json', merged_dict)
 
 
 
