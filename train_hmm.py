@@ -66,6 +66,6 @@ def main():
     X = read_data('data/reverse_num_tokenized.json')
     
     # Change the number of states and model name here before your run!!!!!!!
-    train(X, 12, 'shakespeare_12_states')
+    train(X, 10, 'shakespeare_10_states')
 
 main()

@@ -10,6 +10,7 @@ from nltk import word_tokenize
 # Then do nltk.download() and a window should pop up. Then click Download.
 import csv
 import json
+import string
 
 WORD_LIST = "data/words.csv"
 WORD_LIST_JSON = "data/words.json"
@@ -22,6 +23,7 @@ RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
 STRESS_NUM = "data/stress_num.json"
 STRESS_DICT = "data/stress_dict.json"
 NONWORD = "data/nonword.json"
+ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
 
 DATA_FILE = "data/shakespeare.txt"
 
@@ -48,6 +50,8 @@ def tokenize(lines):
     # words ending in "'st" such as frown'st.
     new_lines = []
     st_words = []
+    punc = {}
+    linecount = 0
     for line in toke_lines:
         new_line = []
         for word in line:
@@ -57,18 +61,32 @@ def tokenize(lines):
             else:
                 new_line.append(word)
         new_lines.append(new_line)
+
+        # grab punctuation at the end of the line if exists. Manually exclude
+        # close parenthesis as punctuation.
+        linecount += 1
+        if line[-1] in string.punctuation and line[-1] != ")":
+            if line[-1] not in punc:
+                punc[line[-1]] = 1
+            else:
+                punc[line[-1]] += 1
     toke_lines = new_lines
 
-    # save st words later
+    # get rid of duplicates in st_words
     st_words = list(set(st_words))
 
-    # find unique words and write to word_list file
+    # find unique words and write to word_list file. lowercase them
     words = set()
     for line in toke_lines:
         for word in line:
             words.add(word.lower())
 
-    return toke_lines, words, st_words
+    # Pack up ending punctuation into nice dict
+    punctuation = {}
+    punctuation['linecount'] = linecount
+    punctuation['punc'] = punc
+
+    return toke_lines, words, st_words, punctuation
 
 '''
 Read and write to a file ezpz.
@@ -224,10 +242,11 @@ def process_data():
     # lines = process_text('data/sonnet1.txt')
     
     # tokenize
-    tokenized_lines, wordset, st_words = tokenize(lines)
+    tokenized_lines, wordset, st_words, punctuation = tokenize(lines)
     # write_data(ST_FILE, st_words)                   # save st words
     # write_data(WORD_LIST, list(wordset))            # save the wordset
     # write_data(TOKENIZED_WORDS, tokenized_lines)    # save the tokenized lines
+    # write_data(ENDLINE_PUNCTUATION, punctuation)    # save the endline punc
 
     # # Find parts of speech
     # tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
@@ -237,6 +256,8 @@ def process_data():
     # my_stress_dict, nonwords = create_stress_dict(lines)
     # write_data(STRESS_DICT, my_stress_dict) # save to stressdict
     # write_data(NONWORD, nonwords)           # save to nonwords
+
+    # # reverse every line
 
     # reverse every line and convert to numbers
     tokenized_lines = [line[::-1] for line in tokenized_lines]
@@ -252,7 +273,7 @@ def process_data():
     # stress
     stress_dict, nonwords = create_stress_dict(tokenized_lines)
     num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    write_data(STRESS_NUM, num_stress_dict)
+    write_data(STRESS_DICT, num_stress_dict)
     write_data(NONWORD, nonwords)
 
 

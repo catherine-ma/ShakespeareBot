@@ -5,8 +5,20 @@ postprocessing.py
 
 import re
 import csv
+import random
+import json 
 
+WORD_LIST = "data/words.csv"
+WORD_LIST_JSON = "data/words.json"
 ST_FILE = "data/st_words.json"
+TOKENIZED_WORDS = "data/tokenized_words.json"
+TOKPOS_WORDS = "data/tokpos_words.json"
+TOKPOS_POS = "data/tokpos_pos.json"
+REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
+STRESS_DICT = "data/stress_dict.json"
+NONWORD = "data/nonword.json"
+ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
+
 
 '''
 Read and write to a file ezpz.
@@ -48,6 +60,23 @@ def reintroduce_st(str):
     print str
 
 
+def get_end_punc():
+    '''
+    Returns a random punctuation mark for the end of a line. The distribution
+    of punctuation returned is proportional the Shakespearean sonnets.
+
+    Since some lines do not have ending punctuation, this function also returns
+    the empty string.
+    '''
+    punctuation = read_data(ENDLINE_PUNCTUATION)
+    count = random.random() * punctuation['linecount']
+    for k, v in punctuation['punc'].iteritems():
+        count -= v
+        if count < 0:
+            return k
+    return ""
+
+
 def fix_hyphens(str):
     return str.replace(" - ", "-")
 
@@ -55,7 +84,8 @@ def fix_hyphens(str):
 # This main function is for testing purposes only
 def main():
     sonnet = "feed forget feel frown fleet fun fudge fuck fawn fanta four fourth fleeting"
-    reintroduce_st(sonnet)
+    # reintroduce_st(sonnet)
+    print get_end_punc()
 
 if __name__ == "__main__":
     main()
