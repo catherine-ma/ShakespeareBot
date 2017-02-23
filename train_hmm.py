@@ -45,14 +45,14 @@ def train(X, n_states, name):
 ## prefix specified. 
 def writeModel(A, O, name):    
     # Save the transition matrix into file
-    fname_A = 'models\\' + name + '_A.csv'
+    fname_A = 'models/' + name + '_A.csv'
     with open(fname_A, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"', lineterminator='\n')
         for r in A:
             wr.writerow(r)
     
     # Save the observation matrix in file
-    fname_O = 'models\\' + name + '_O.csv'
+    fname_O = 'models/' + name + '_O.csv'
     with open(fname_O, 'w') as f:
         wr = csv.writer(f, delimiter=',', quotechar='"', lineterminator='\n')
         for r in O:
@@ -63,9 +63,9 @@ def writeModel(A, O, name):
 #writeModel(At, Ot, "test")
 
 def main():
-    X = read_data('data\\reverse_num_tokenized.json')
+    X = read_data('data/reverse_num_tokenized.json')
     
     # Change the number of states and model name here before your run!!!!!!!
-    train(X, 6, 'shakespeare_6_states')
+    train(X, 12, 'shakespeare_12_states')
 
 main()

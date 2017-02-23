@@ -91,6 +91,14 @@ def read_data(dest):
     with open(dest, 'r') as f:
         return json.load(f)
 
+def write_rhyme_pairs(dest, words):
+    with open(dest, 'w') as f:
+        wr = csv.writer(f, delimiter=',', quotechar='"')
+
+        for i in range(len(words)):
+            rhyme_pair = [words[i][0], words[i][1]]
+            wr.writerow(rhyme_pair)
+
 
 def pos_tokenize(tokenized_lines):
     '''
@@ -238,4 +246,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
