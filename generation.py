@@ -84,8 +84,16 @@ def generate_sonnet(A, O):
         # Keep track of number of syllables and currently ending stress
         # Stress is 1 for stressed, 0 for relaxed
         start_word = poem[i][0]
-        num_syllables = 0 #len(stress_dict[start_word][1])
-        stress = 0 #stress_dict[start_word][1][0]
+        if str(start_word) not in stress_dict:
+            print "stress not in dict", start_word
+            start_stress = [1]
+        else:
+            start_stress = stress_dict[str(start_word)]
+            syllables = len(start_stress)
+            if syllables == 0:
+                stress = -1
+            else:
+                stress = start_stress[0]
         
         # Find the starting state using our rhyming word
         state_probs = O[:,start_word]
@@ -94,13 +102,33 @@ def generate_sonnet(A, O):
         ys = [int(np.random.choice(n_states, p=state_probs))]
         
         # Iterate 
-        while num_syllables < 10:
+        while syllables < 10:
             y = ys[-1]
-            poem[i].append(int(np.random.choice(n_words, p=O[y])))
+            while True:
+                cand = int(np.random.choice(n_words, p=O[y]))
+                cand_stress = stress_dict[str(cand)]
+                cand_n_syl = len(cand_stress)
+                
+                # If the word is punctuation
+                if cand_n_syl == 0:
+                    cand_end_stress = -1
+                    cand_start_stress = -1
+                else:
+                    cand_end_stress = cand_stress[-1]
+                    cand_start_stress = cand_stress[0]
+                
+                # If the word doesn't satisfy syllable and stress conditions
+                if syllables + cand_n_syl > 10:
+                    continue
+                if cand_n_syl != 1 and cand_end_stress == stress:
+                    continue
+                break                
+            
+            stress = cand_stress[0]
+            syllables += cand_n_syl
+            poem[i].append(cand)
             ys.append(int(np.random.choice(n_states, p=A[y])))
-            
-            num_syllables += 1
-            
+                        
     return poem
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
