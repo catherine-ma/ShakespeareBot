@@ -4,22 +4,6 @@ import numpy as np
 import postprocessing as pp
 import random
 
-WORD_LIST = "data/words.csv"
-WORD_LIST_JSON = "data/words.json"
-ST_FILE = "data/st_words.json"
-TOKENIZED_WORDS = "data/tokenized_words.json"
-TOKPOS_WORDS = "data/tokpos_words.json"
-TOKPOS_POS = "data/tokpos_pos.json"
-REVERSE_NUM_TOKENIZED = "data/reverse_num_tokenized.json"
-RHYME_PAIRS_NUM = "data/rhyme_pairs_num.json"
-STRESS_NUM = "data/stress_num.json"
-STRESS_DICT = "data/stress_dict.json"
-NONWORD = "data/nonword.json"
-ENDLINE_PUNCTUATION = "data/endline_punctuation.json"
-
-DATA_FILE = "data/shakespeare.txt"
-
-
 def read_data(dest):
     with open(dest, 'r') as f:
         return json.load(f)
@@ -42,7 +26,7 @@ def get_HMM(name):
 ## 1-word lines. 
 def prime_sonnet():
     poem = [[] for i in range(14)]
-    rhyme_pairs = read_data(RHYME_PAIRS_NUM)
+    rhyme_pairs = read_data('data\\spenspear\\rhyme_pairs_num.json')
         
     # Generate 7 rhyming word pairs and put them into the poem
     for n in range(7):
@@ -75,7 +59,7 @@ def generate_sonnet(A, O):
     n_states = len(A) 
     n_words = len(O[0])
     poem = prime_sonnet()
-    stress_dict = read_data(STRESS_DICT)   
+    stress_dict = read_data('data\\spenspear\\stress_dict.json')   
     
     # Fill in the rest of the line
     O = np.asarray(O)
@@ -87,6 +71,7 @@ def generate_sonnet(A, O):
         if str(start_word) not in stress_dict:
             print "stress not in dict", start_word
             start_stress = [1]
+            syllables = 1
         else:
             start_stress = stress_dict[str(start_word)]
             syllables = len(start_stress)
@@ -95,17 +80,22 @@ def generate_sonnet(A, O):
             else:
                 stress = start_stress[0]
         
+        
         # Find the starting state using our rhyming word
         state_probs = O[:,start_word]
         prob_sum = sum(state_probs)
         state_probs = [m / prob_sum for m in state_probs]
         ys = [int(np.random.choice(n_states, p=state_probs))]
         
+        
         # Iterate 
         while syllables < 10:
             y = ys[-1]
             while True:
                 cand = int(np.random.choice(n_words, p=O[y]))
+
+                if str(cand) not in stress_dict:
+                    continue
                 cand_stress = stress_dict[str(cand)]
                 cand_n_syl = len(cand_stress)
                 
@@ -128,6 +118,8 @@ def generate_sonnet(A, O):
             syllables += cand_n_syl
             poem[i].append(cand)
             ys.append(int(np.random.choice(n_states, p=A[y])))
+            
+            print syllables
                         
     return poem
 
@@ -136,7 +128,7 @@ def generate_sonnet(A, O):
 def decode_sonnet(code):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
-    encoding = read_data(WORD_LIST_JSON)
+    encoding = read_data('data\\spenspear\\words.json')
     for i in range(n_lines):
         n_words = len(code[i])
         words = []
@@ -171,7 +163,7 @@ def write_poem(lines, name):
             f.write(line + '\n')
 
 def main():
-    A, O = get_HMM('shakespeare_10_states')
+    A, O = get_HMM('spenspear_10_states')
     code = generate_sonnet(A, O)
     print code
     #code = [[1, 2], [3, 4]]
