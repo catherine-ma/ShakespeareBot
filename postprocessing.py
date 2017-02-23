@@ -81,6 +81,19 @@ def fix_hyphens(str):
     return str.replace(" - ", "-")
 
 
+def fix_punctuation(str):
+    ### TODO: fix spaces around punctuation
+    return str
+
+
+def postProcessLine(str):
+    str = fix_hyphens(str)
+    str = reintroduce_st(str)
+    str = fix_punctuation(str)
+    return str
+
+
+
 # This main function is for testing purposes only
 def main():
     sonnet = "feed forget feel frown fleet fun fudge fuck fawn fanta four fourth fleeting"
