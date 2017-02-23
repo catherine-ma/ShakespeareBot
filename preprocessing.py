@@ -252,9 +252,9 @@ def word_to_num(lines, wordset):
 
 def word_to_num_dict(d, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
-    num_d = []
+    num_d = {}
     for word in d.keys():
-        num_d.append([worddict[word], d[word]])
+        num_d[worddict[word]] = d[word]
     return num_d
 
 def process_data(use_spenser=False):
@@ -299,8 +299,13 @@ def process_data(use_spenser=False):
     # # stress
     # stress_dict, nonwords = create_stress_dict(tokenized_lines)
     # num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    # write_data(DEST + STRESS_DICT, num_stress_dict)
-    # write_data(DEST + NONWORD, nonwords)
+    # write_data(STRESS_DICT, num_stress_dict)
+    # write_data(NONWORD, list(set(nonwords)))
+    # stress
+    stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    write_data(DEST + STRESS_DICT, num_stress_dict)
+    write_data(DEST + NONWORD, nonwords)
 
 
 # This main is for testing purposes only
