@@ -97,22 +97,30 @@ def fix_punctuation(str):
     - Two punctuation in a row.
     '''
     # remove punctuation at beginning of line
-    if str.strip()[0] in string.punctuation:
+    misc_beginning_punctuation = ["'s"]
+    if str.strip()[0] in string.punctuation or \
+       str.strip()[0] in misc_beginning_punctuation:
         str = str.strip()[1:]
     
     # remove multiple spaces in a row
     str = ' '.join(str.split())
 
+    # miscellaneous replacements
+    str = str.replace(" i ", " I ")
+    str = str.replace(",s", "'s")
+    
     # remove spaces before punctuation if appropriate
     remove_space_punctuation = ["!", ",", ".", ";", ":", "?", "'s"]
     for punc in remove_space_punctuation:
         str = str.replace(" " + punc, punc)
 
-    # replace i with I 
-    str = str.replace(' i ', ' I ')
+    # remove punctuation entirely if appropriate
+    remove_punctuation = ["(", ")", "'"]
+    for punc in remove_punctuation:
+        str = str.replace(" " + punc + " ", " ")
     
     # two punctuation in a row
-    punctuation = ["!", "'", ",", ".", ";", ":", "?"]
+    punctuation = ["!", "'", ",", ".", ";", ":", "?", "'s", "-"]
     newstr = ""
     found = False
     for c in str:

@@ -13,7 +13,7 @@ TOKPOS_POS = "tokpos_pos.json"
 REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
 RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
 STRESS_NUM = "stress_num.json"
-STRESS_DICT = "stress_dict.json"
+STRESS_DICT = "stress_dict_comb.json"
 NONWORD = "nonword.json"
 ENDLINE_PUNCTUATION = "endline_punctuation.json"
 NUM_TO_WORD_DICT = "num_to_word_dict.json"
@@ -68,8 +68,25 @@ def prime_sonnet(DEST):
         if n == 6:
             poem[12] = a
             poem[13] = b    
-    return poem
+    return poem    
 
+## Generate naive sonnet, with no improvements. 
+def generate_naive_sonnet(A, O):
+    n_states = len(A) 
+    n_words = len(O[0])
+    poem = [0 for i in range(14)]
+    O = np.asarray(O)
+    for i in range(14):
+        start_word = random.randrange(n_words)
+        poem[i] = [start_word]
+        ys = [word_to_state(O, start_word)]
+        
+        for _ in range(8):
+            y = ys[-1]
+            cand = int(np.random.choice(n_words, p=O[y]))            
+            poem[i].append(cand)
+            ys.append(int(np.random.choice(n_states, p=A[y])))            
+    return poem
 
 ## Poem generated is a list of lists of integers. Each list contains a line of
 ## indexes representing words, backward. 
@@ -83,28 +100,16 @@ def generate_sonnet(A, O, DEST):
     # Fill in the rest of the line
     O = np.asarray(O)
     for i in range(14):
+        print "line ", i 
         
-        # Keep track of number of syllables and currently ending stress
+        # Keep track of number of syllables and next desired stress
         # Stress is 1 for stressed, 0 for relaxed
         start_word = poem[i][0]
-        if str(start_word) not in stress_dict:
-            print "stress not in dict", start_word
-            start_stress = [1]
-            syllables = 1
-        else:
-            start_stress = stress_dict[str(start_word)]
-            syllables = len(start_stress)
-            if syllables == 0:
-                stress = -1
-            else:
-                stress = start_stress[0]
-        
-        
+        syllables = numSyl(stress_dict, start_word) 
+        stress = syllables % 2 + 1 
+                
         # Find the starting state using our rhyming word
-        state_probs = O[:,start_word]
-        prob_sum = sum(state_probs)
-        state_probs = [m / prob_sum for m in state_probs]
-        ys = [int(np.random.choice(n_states, p=state_probs))]
+        ys = [word_to_state(O, start_word)]
         
         # Iterate until each line reaches 10 syllables
         while syllables < 10:
@@ -115,27 +120,26 @@ def generate_sonnet(A, O, DEST):
                     cand_stress = [1]
                     print "stress not in dict", encoding[cand]
                 else:
-                    print "yay"
                     cand_stress = stress_dict[str(cand)]
-                cand_n_syl = len(cand_stress)
+                cand_n_syl = numSyl(stress_dict, cand)
                 
                 # If the word is punctuation
                 if cand_n_syl == 0:
-                    cand_end_stress = -1
-                    cand_start_stress = -1
+                    cand_end_stress = stress   # Punctuation never rejected
                 else:
                     cand_end_stress = cand_stress[-1]
-                    cand_start_stress = cand_stress[0]
                 
                 # If the word doesn't satisfy syllable and stress conditions
                 if syllables + cand_n_syl > 10:
                     continue
-                if cand_n_syl != 1 and cand_end_stress == stress:
+                if cand_n_syl == 1 and random.randrange(5) != 0:
+                    continue
+                if cand_n_syl == 2 and cand_end_stress != stress:
                     continue
                 break                
             
-            stress = cand_stress[0]
             syllables += cand_n_syl
+            stress = syllables % 2 + 1
             poem[i].append(cand)
             ys.append(int(np.random.choice(n_states, p=A[y])))
             
@@ -143,7 +147,7 @@ def generate_sonnet(A, O, DEST):
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
 ## lines of the poem
-def decode_sonnet(code, DEST):
+def decode_poem(code, naive=False):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
     encoding = read_data(os.path.join(DEST, WORD_LIST_JSON))
@@ -154,13 +158,15 @@ def decode_sonnet(code, DEST):
         # Decipher the words backward
         for j in range(n_words-1, -1, -1):
             words.append(encoding[code[i][j]])
-        line = str(' '.join(words).capitalize())
-        line = pp.post_process_line(line, DEST)
-        # line = pp.fix_punctuation(line)
-        if i != n_lines - 1:
-            line += pp.get_end_punc(DEST)
-        else:
-            line += '.'
+        line = str(' '.join(words))
+        line = line.capitalize()
+        
+        if not naive:
+            line = pp.post_process_line(line)
+            if i != n_lines - 1:
+                line += pp.get_end_punc()
+            else:
+                line += '.'
         poem[i] = str(line)
     
     return poem
@@ -168,10 +174,17 @@ def decode_sonnet(code, DEST):
 ## Get number of syllables. If not available, return 1 and print an error 
 ## message.
 def numSyl(stress_dict, word):
-    if word in stress_dict:
-        return len(stress_dict[word])
+    if str(word) in stress_dict:
+        return len(stress_dict[str(word)])
     print word, "not found in stress_dict"
     return 1
+
+def word_to_state(O, word):
+    n_states = len(O)
+    state_probs = O[:,word]
+    prob_sum = sum(state_probs)
+    state_probs = [m / prob_sum for m in state_probs]
+    return int(np.random.choice(n_states, p=state_probs)) 
 
 ## Generate poem in the style of a haiku. Returns a list of strings containing
 ## the lines
@@ -180,18 +193,36 @@ def generate_haiku(A, O, DEST):
     n_states = len(A)
     n_words = len(O[0])
     poem = [0 for i in range(3)]
+    
+    O = np.asarray(O)
     for i in range(3):
         if i == 1:
             tot_syl = 7
         else:
             tot_syl = 5
-
+        
+        # Initialize starting word
         start_word = random.randrange(n_words)
-        syl  = numSyl(stress_dict, word)
+        syl  = numSyl(stress_dict, start_word)
         poem[i] = [start_word]
+        ys = [word_to_state(O, start_word)]
         
         while syl < tot_syl:
-            cand = int(np.random.choice(n_words, p=O[y])) 
+            y = ys[-1]
+            while True:
+                cand = int(np.random.choice(n_words, p=O[y]))            
+                cand_n_syl = numSyl(stress_dict, cand)
+                
+                # If the word doesn't satisfy syllable and stress conditions
+                if syl + cand_n_syl > tot_syl:
+                    continue
+                if cand_n_syl == 1 and random.randrange(1) != 0:
+                    continue
+                break                
+            
+            syl += cand_n_syl
+            poem[i].append(cand)
+            ys.append(int(np.random.choice(n_states, p=A[y])))           
         
     return poem
 
@@ -201,23 +232,24 @@ def write_poem(lines, name):
     dest = os.path.join("poems", name + ".txt")
     with open(dest, 'w') as f:
         for line in lines:
+            print line
             f.write(line + '\n')
 
-def main():
-    use_spenser = True
-    DEST = "data"
-    if use_spenser:
-        DEST = os.path.join("data","spenspear")
-
-    # A, O = get_HMM('spenspear_10_states')
-    A, O = get_HMM('spenspear_12_states')
-    code = generate_sonnet(A, O, DEST)
-    print code
-    #code = [[1, 2], [3, 4]]
-    poem = decode_sonnet(code, DEST)
-    print poem
-    write_poem(poem, 'test')
+def make_sonnet(naive=False):
+    A, O = get_HMM('spenspear_10_states')
+    if naive:
+        code = generate_naive_sonnet(A, O)
+    else:
+        code = generate_sonnet(A, O)
+    poem = decode_poem(code, naive)
+    write_poem(poem, 'Sonnet_spenspear_states10')
     #write_poem(poem, 'shakespeare_state6_it1000')
-
-if __name__ == "__main__":
-    main()
+    
+def make_haiku():
+    A, O = get_HMM('spenspear_10_states')
+    code = generate_haiku(A, O)
+    print code
+    poem = decode_poem(code)
+    write_poem(poem, 'Haiku_spenspear_states10')    
+    
+#make_sonnet(naive=True)

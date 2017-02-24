@@ -249,7 +249,16 @@ def get_rhyme_pairs(poems):
 
 def word_to_num(lines, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
-    print worddict["'s"]
+    print worddict["!"]
+    print worddict["'"]
+    print worddict[","]
+    print worddict["."]
+    print worddict[";"]
+    print worddict[":"]
+    print worddict["?"]
+    print worddict["("]
+    print worddict[")"]
+    print worddict["-"]
     return [[worddict[word] for word in line] for line in lines]
 
 def word_to_num_dict(d, wordset):
@@ -350,6 +359,10 @@ if __name__ == "__main__":
     # stress_dict_2 = read_data('data/spenspear/stress_dict.json')
     # merged_dict = merge_dicts(stress_dict, stress_dict_2)
     # write_data('stress_dict.json', merged_dict)
-
+    
+    # nonwords = read_data('nonword_stress_spen_num.json')
+    # stress_dict = read_data('data/spenspear/stress_dict_comb.json')
+    # d = merge_dicts(nonwords, stress_dict)
+    # write_data('nonword_stress_comb.json', d)
 
 

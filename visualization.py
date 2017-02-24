@@ -1,12 +1,21 @@
-import matplotlib.pyplot as plt
+import csv
 import numpy as np
 import networkx as nx
 from preprocessing import read_word_list
 from matplotlib import colors
 import generation as gen
+import os
+
+import generation as gn
+
+def main():
+    A, O = gn.get_HMM('spenspear_10_states')
+    encoding = gn.read_data(os.path.join("data", "spenspear", gn.WORD_LIST_JSON))
+    for t in topWords(O, encoding, 'spenspear_10_states'):
+        print t
 
 ## Top ten words of each state. 
-def topWords(O, words, n=10):
+def topWords(O, words, name, n=10):
     N = len(O)
     words = np.asarray(words)
     topWords = [0 for i in range(N)]
@@ -14,7 +23,23 @@ def topWords(O, words, n=10):
         prob = np.asarray(O[state])
         topInd = prob.argsort()[-n:][::-1]
         topWords[state] = words[topInd]
-    return np.asarray(topWords)
+        
+    # Format it like a table
+    table = [[0 for i in range(N)] for j in range(11)]
+    for i in range(N):
+        table[0][i] = 'State ' + str(i+1)
+    for j in range(1, 11):
+        for i in range(N):
+            table[j][i] = topWords[i][j-1]
+    
+    # Write to csv 
+    fname = os.path.join('visualization', 'top_ten_' + name + '.csv')
+    with open(fname, 'w') as f:
+        wr = csv.writer(f, delimiter=',', quotechar='"', lineterminator='\n')
+        for r in table:
+            wr.writerow(r)    
+    
+    return table
 
 ## Probability of words of each part of speech in each state. Returns array of 
 ## dictionaries. Outer array index refers to state number. Dictionary has parts
@@ -83,9 +108,9 @@ def graphHeatMap(A):
 
     plt.show()
 
-def main():
-    A, O = gen.get_HMM('spenspear_12_states')
-    graphHeatMap(A)
+# def main():
+#     A, O = gen.get_HMM('spenspear_12_states')
+#     graphHeatMap(A)
 
 if __name__ == "__main__":
     main()
