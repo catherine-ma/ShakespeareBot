@@ -19,6 +19,7 @@ ST_FILE = "st_words.json"
 TOKENIZED_WORDS = "tokenized_words.json"
 TOKPOS_WORDS = "tokpos_words.json"
 TOKPOS_POS = "tokpos_pos.json"
+TOKPOS_DICT = "tokpos_dict.json"
 REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
 RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
 STRESS_NUM = "stress_num.json"
@@ -164,6 +165,18 @@ def create_stress_dict(poem_words):
 
     return my_stress_dict, nonwords
 
+def create_pos_dict():
+    prefix = "data\\spenspear\\"
+    tokpos_words = read_data(prefix + TOKPOS_WORDS)
+    tokpos_pos = read_data(prefix + TOKPOS_POS)
+    wordset = read_data(prefix + WORD_LIST_JSON)
+    pos_dict = {}
+    tokpos_nums = word_to_num([tokpos_words], wordset)[0]
+    for i in range(len(tokpos_nums)):
+        pos_dict[tokpos_nums[i]] = tokpos_pos[i]
+    write_data(prefix + TOKPOS_DICT, pos_dict)
+    
+
 def process_text_by_poem(file_name):
     with open(file_name) as data_file:
         lines = data_file.readlines()
@@ -282,7 +295,7 @@ def process_data(use_spenser=False):
     write_data(os.path.join(DEST, NUM_TO_WORD_DICT), worddict)      
 
     # Find parts of speech
-    tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines)
+    tokpos_words, tokpos_pos = pos_tokenize(tokenized_lines, worddict)
     write_data(os.path.join(DEST, TOKPOS_WORDS), tokpos_words)
     write_data(os.path.join(DEST, TOKPOS_POS), tokpos_pos)
     
@@ -318,12 +331,12 @@ def main():
     # write_data(os.path.join("data","spenspear",STRESS_DICT), makemedict)
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     #main()
 
-    nonwords = read_data('nonword_stress_spen_num.json')
-    stress_dict = read_data('data/spenspear/stress_dict_comb.json')
-    d = merge_dicts(nonwords, stress_dict)
-    write_data('nonword_stress_comb.json', d)
+#    nonwords = read_data('nonword_stress_spen_num.json')
+#    stress_dict = read_data('data/spenspear/stress_dict_comb.json')
+#    d = merge_dicts(nonwords, stress_dict)
+#    write_data('nonword_stress_comb.json', d)
 
-
+create_pos_dict()

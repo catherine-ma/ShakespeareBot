@@ -10,6 +10,7 @@ ST_FILE = "st_words.json"
 TOKENIZED_WORDS = "tokenized_words.json"
 TOKPOS_WORDS = "tokpos_words.json"
 TOKPOS_POS = "tokpos_pos.json"
+TOKPOS_DICT = "tokpos_dict.json"
 REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
 RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
 STRESS_NUM = "stress_num.json"
@@ -252,4 +253,4 @@ def make_haiku():
     poem = decode_poem(code)
     write_poem(poem, 'Haiku_spenspear_states10')    
     
-#make_sonnet(naive=True)
+#make_sonnet(naive=False)
