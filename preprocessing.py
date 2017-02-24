@@ -27,6 +27,7 @@ STRESS_DICT = "stress_dict.json"
 NONWORD = "nonword.json"
 ENDLINE_PUNCTUATION = "endline_punctuation.json"
 NUM_TO_WORD_DICT = "num_to_word_dict.json"
+BEE_HARDCODED_RHYMES = "bee_hardcoded_rhymes.json"
 
 DATA_FILE = os.path.join("data", "shakespeare.txt")
 SPENSER_FILE = os.path.join("data", "spenser.txt")
@@ -247,18 +248,48 @@ def get_rhyme_pairs(poems):
 
     return rhyme_pairs
 
+
+def get_rhyme_pairs_bee(DEST, wordset):
+    rhyme_pairs = []
+    # for i, w in enumerate(wordset):
+    #     print str(i) + ": word = " + w
+    #     if doTheyRhyme("party", w):
+    #         rhyme_pairs.append(("bee", w))
+    #         print w
+    rhymes = read_data(os.path.join(DEST, BEE_HARDCODED_RHYMES))
+    for r in rhymes:
+        rhyme_pairs.append(("bee", r))
+    return rhyme_pairs
+
+def rhyme(inp, level):
+    '''
+    Taken off of stackoverflow
+    http://stackoverflow.com/questions/25714531/find-rhyme-using-nltk-in-python
+    '''
+    entries = nltk.corpus.cmudict.entries()
+    syllables = [(word, syl) for word, syl in entries if word == inp]
+    rhymes = []
+    for (word, syllable) in syllables:
+            rhymes += [word for word, pron in entries if pron[-level:] == syllable[-level:]]
+    return set(rhymes)
+
+
+def doTheyRhyme ( word1, word2 ):
+    '''
+    Taken off of stackoverflow
+    http://stackoverflow.com/questions/25714531/find-rhyme-using-nltk-in-python
+    '''
+    # first, we don't want to report 'glue' and 'unglue' as rhyming words
+    # those kind of rhymes are LAME
+    if word1.find ( word2 ) == len(word1) - len ( word2 ):
+        return False
+    if word2.find ( word1 ) == len ( word2 ) - len ( word1 ): 
+        return False
+    return word1 in rhyme ( word2, 1 )
+
+
 def word_to_num(lines, wordset):
     worddict = dict([ (elem, index) for index, elem in enumerate(wordset) ])
-    print worddict["!"]
-    print worddict["'"]
-    print worddict[","]
-    print worddict["."]
-    print worddict[";"]
-    print worddict[":"]
-    print worddict["?"]
-    print worddict["("]
-    print worddict[")"]
-    print worddict["-"]
     return [[worddict[word] for word in line] for line in lines]
 
 def word_to_num_dict(d, wordset):
@@ -316,13 +347,20 @@ def process_data(dataset):
     # num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
     # write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
 
+
+    # jank rhymes for bees
+    rhyme_pairs = get_rhyme_pairs_bee(DEST, wordset)
+    num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
+    write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
+
+
     ## stress
     ## DO NOT TOUCH. DO NOT UNCOMMENT. THE GENERATED FILE IS BEING MANUALLY
     ## CHANGED.
-    ## stress_dict, nonwords = create_stress_dict(tokenized_lines)
-    ## num_stress_dict = word_to_num_dict(stress_dict, wordset)
-    ## write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
-    ## write_data(os.path.join(DEST, NONWORD), nonwords)
+    # stress_dict, nonwords = create_stress_dict(tokenized_lines)
+    # num_stress_dict = word_to_num_dict(stress_dict, wordset)
+    # write_data(os.path.join(DEST, STRESS_DICT), num_stress_dict)
+    # write_data(os.path.join(DEST, NONWORD), nonwords)
 
 
 # This main is for testing purposes only

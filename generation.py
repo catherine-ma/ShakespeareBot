@@ -14,6 +14,7 @@ REVERSE_NUM_TOKENIZED = "reverse_num_tokenized.json"
 RHYME_PAIRS_NUM = "rhyme_pairs_num.json"
 STRESS_NUM = "stress_num.json"
 STRESS_DICT = "stress_dict_comb.json"
+STRESS_BEE_DICT = "stress_dict.json"
 NONWORD = "nonword.json"
 ENDLINE_PUNCTUATION = "endline_punctuation.json"
 NUM_TO_WORD_DICT = "num_to_word_dict.json"
@@ -42,7 +43,7 @@ def get_HMM(name):
 
 ## Prime the ends of sonnets by generating rhyming pairs only and returning
 ## 1-word lines. 
-def prime_sonnet(DEST):
+def prime_sonnet(DEST, bee=False):
     poem = [[] for i in range(14)]
     rhyme_pairs = read_data(os.path.join(DEST, RHYME_PAIRS_NUM))
         
@@ -55,19 +56,23 @@ def prime_sonnet(DEST):
         a = [rhyme_word1]
         b = [rhyme_word2]
         
-        # Place them in current place in poem
-        if n == 0 or n == 1:
-            poem[n] = a
-            poem[n+2] = b
-        elif n == 2 or n == 4:
+        if not bee:
+            # Place them in current place in poem
+            if n == 0 or n == 1:
+                poem[n] = a
+                poem[n+2] = b
+            elif n == 2 or n == 4:
+                poem[2*n] = a
+                poem[2*n+2] = b
+            elif n == 3 or n == 5:
+                poem[2*n-1] = a
+                poem[2*n+1] = b
+            if n == 6:
+                poem[12] = a
+                poem[13] = b  
+        else:
             poem[2*n] = a
-            poem[2*n+2] = b
-        elif n == 3 or n == 5:
-            poem[2*n-1] = a
             poem[2*n+1] = b
-        if n == 6:
-            poem[12] = a
-            poem[13] = b    
     return poem    
 
 ## Generate naive sonnet, with no improvements. 
@@ -93,8 +98,8 @@ def generate_naive_sonnet(A, O):
 def generate_sonnet(A, O, DEST):
     n_states = len(A) 
     n_words = len(O[0])
-    poem = prime_sonnet(DEST)
-    stress_dict = read_data(os.path.join(DEST, STRESS_DICT))
+    poem = prime_sonnet(DEST, True)
+    stress_dict = read_data(os.path.join(DEST, STRESS_BEE_DICT))
     encoding = read_data(os.path.join(DEST, WORD_LIST_JSON))
     
     # Fill in the rest of the line
@@ -147,7 +152,7 @@ def generate_sonnet(A, O, DEST):
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
 ## lines of the poem
-def decode_poem(code, naive=False):
+def decode_poem(code, DEST, naive=False):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
     encoding = read_data(os.path.join(DEST, WORD_LIST_JSON))
@@ -162,9 +167,9 @@ def decode_poem(code, naive=False):
         line = line.capitalize()
         
         if not naive:
-            line = pp.post_process_line(line)
+            line = pp.post_process_line(line, DEST)
             if i != n_lines - 1:
-                line += pp.get_end_punc()
+                line += pp.get_end_punc(DEST)
             else:
                 line += '.'
         poem[i] = str(line)
@@ -235,21 +240,23 @@ def write_poem(lines, name):
             print line
             f.write(line + '\n')
 
-def make_sonnet(naive=False):
-    A, O = get_HMM('spenspear_10_states')
+def make_sonnet(DEST, naive=False):
+    A, O = get_HMM('bee_9_states')
     if naive:
         code = generate_naive_sonnet(A, O)
     else:
-        code = generate_sonnet(A, O)
-    poem = decode_poem(code, naive)
-    write_poem(poem, 'Sonnet_spenspear_states10')
+        code = generate_sonnet(A, O, DEST)
+    poem = decode_poem(code, DEST, naive)
+    write_poem(poem, 'Sonnet_bee_states9')
     #write_poem(poem, 'shakespeare_state6_it1000')
     
-def make_haiku():
+def make_haiku(DEST):
     A, O = get_HMM('spenspear_10_states')
     code = generate_haiku(A, O)
     print code
-    poem = decode_poem(code)
+    poem = decode_poem(code, DEST)
     write_poem(poem, 'Haiku_spenspear_states10')    
     
-#make_sonnet(naive=True)
+DEST = os.path.join("data", "spenspear")
+DEST = os.path.join("data", "bee")
+make_sonnet(DEST, naive=False)
