@@ -242,7 +242,7 @@ def make_sonnet(naive=False):
     else:
         code = generate_sonnet(A, O)
     poem = decode_poem(code, naive)
-    write_poem(poem, 'Sonnet_spenspear_states10_naive')
+    write_poem(poem, 'Sonnet_spenspear_states10')
     #write_poem(poem, 'shakespeare_state6_it1000')
     
 def make_haiku():
@@ -252,4 +252,4 @@ def make_haiku():
     poem = decode_poem(code)
     write_poem(poem, 'Haiku_spenspear_states10')    
     
-make_sonnet(naive=True)
+#make_sonnet(naive=True)
