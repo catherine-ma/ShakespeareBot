@@ -114,28 +114,32 @@ if __name__ == '__main__':
     model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
     # model.add(Dropout(0.2))
     model.add(Dense(y.shape[1], activation='softmax'))
-    #filename = 'weights-improvement-09-5.9565.hdf5'
-    #model.load_weights(filename)
+    filename = 'weights-improvement-493-0.1677.hdf5'
+    model.load_weights(filename)
     model.compile(loss='categorical_crossentropy', optimizer='adam')
                              
-    filepath="weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
-    checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-    callbacks_list = [checkpoint]
+    # filepath="weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
+    # checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+    # callbacks_list = [checkpoint]
 
-    model.fit(X, y, nb_epoch=1000, batch_size=64, callbacks=callbacks_list)
+    # model.fit(X, y, nb_epoch=500, batch_size=64, callbacks=callbacks_list)
 
-    # start = np.random.randint(0, len(dataX)-1)
-    # pattern = dataX[start]
-    # print "\"", ' '.join([int_to_word[value] for value in pattern]), "\""
-    # # generate characters
-    # for i in range(200):
-    #     x = np.reshape(pattern, (1, len(pattern), 1))
-    #     x = x / float(n_vocab)
-    #     prediction = model.predict(x, verbose=0)
-    #     index = np.argmax(prediction)
-    #     result = int_to_word[index]
-    #     seq_in = [int_to_word[value] for value in pattern]
-    #     sys.stdout.write(result+'\n')
-    #     pattern.append(index)
-    #     pattern = pattern[1:len(pattern)]
-    # print "\nDone."
+    start = np.random.randint(0, len(dataX)-1)
+    pattern = dataX[start]
+    print "\"", ' '.join([int_to_word[value] for value in pattern]), "\""
+    # generate characters
+    res = []
+    for i in range(140):
+        x = np.reshape(pattern, (1, len(pattern), 1))
+        x = x / float(n_vocab)
+        prediction = model.predict(x, verbose=0)
+        index = np.argmax(prediction)
+        result = int_to_word[index]
+        seq_in = [int_to_word[value] for value in pattern]
+        res.append(result)
+        pattern.append(index)
+        pattern = pattern[1:len(pattern)]
+    print "\nDone."
+
+    ' '.join(res)
+    print res
