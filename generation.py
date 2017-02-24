@@ -70,6 +70,24 @@ def prime_sonnet():
             poem[13] = b    
     return poem    
 
+## Generate naive sonnet, with no improvements. 
+def generate_naive_sonnet(A, O):
+    n_states = len(A) 
+    n_words = len(O[0])
+    poem = [0 for i in range(14)]
+    O = np.asarray(O)
+    for i in range(14):
+        start_word = random.randrange(n_words)
+        poem[i] = [start_word]
+        ys = [word_to_state(O, start_word)]
+        
+        for _ in range(8):
+            y = ys[-1]
+            cand = int(np.random.choice(n_words, p=O[y]))            
+            poem[i].append(cand)
+            ys.append(int(np.random.choice(n_states, p=A[y])))            
+    return poem
+
 ## Poem generated is a list of lists of integers. Each list contains a line of
 ## indexes representing words, backward. 
 def generate_sonnet(A, O):
@@ -129,7 +147,7 @@ def generate_sonnet(A, O):
 
 ## Decodes each line of a poem of integers. Returns a list of strings with the
 ## lines of the poem
-def decode_poem(code):
+def decode_poem(code, naive=False):
     n_lines = len(code)
     poem = ['' for i in range(n_lines)]
     encoding = read_data(os.path.join("data", "spenspear", WORD_LIST_JSON))
@@ -142,11 +160,13 @@ def decode_poem(code):
             words.append(encoding[code[i][j]])
         line = str(' '.join(words))
         line = line.capitalize()
-        line = pp.fix_punctuation(line)
-        if i != n_lines - 1:
-            line += pp.get_end_punc()
-        else:
-            line += '.'
+        
+        if not naive:
+            line = pp.post_process_line(line)
+            if i != n_lines - 1:
+                line += pp.get_end_punc()
+            else:
+                line += '.'
         poem[i] = str(line)
     
     return poem
@@ -196,7 +216,7 @@ def generate_haiku(A, O):
                 # If the word doesn't satisfy syllable and stress conditions
                 if syl + cand_n_syl > tot_syl:
                     continue
-                if cand_n_syl == 1 and random.randrange(3) != 0:
+                if cand_n_syl == 1 and random.randrange(1) != 0:
                     continue
                 break                
             
@@ -212,15 +232,17 @@ def write_poem(lines, name):
     dest = os.path.join("poems", name + ".txt")
     with open(dest, 'w') as f:
         for line in lines:
+            print line
             f.write(line + '\n')
 
-def make_sonnet():
-    A, O = get_HMM('spenspear_8_states')
-    code = generate_sonnet(A, O)
-    print code
-    #code = [[1, 2], [3, 4]]
-    poem = decode_poem(code)
-    write_poem(poem, 'Sonnet_spenspear_states8')
+def make_sonnet(naive=False):
+    A, O = get_HMM('spenspear_10_states')
+    if naive:
+        code = generate_naive_sonnet(A, O)
+    else:
+        code = generate_sonnet(A, O)
+    poem = decode_poem(code, naive)
+    write_poem(poem, 'Sonnet_spenspear_states10_naive')
     #write_poem(poem, 'shakespeare_state6_it1000')
     
 def make_haiku():
@@ -230,4 +252,4 @@ def make_haiku():
     poem = decode_poem(code)
     write_poem(poem, 'Haiku_spenspear_states10')    
     
-make_sonnet()
+make_sonnet(naive=True)
