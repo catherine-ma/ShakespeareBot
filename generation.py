@@ -218,5 +218,6 @@ def main():
     print poem
     write_poem(poem, 'test')
     #write_poem(poem, 'shakespeare_state6_it1000')
-    
-main()
+
+if __name__ == "__main__":
+    main()

@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 from preprocessing import read_word_list
+from matplotlib import colors
+import generation as gen
 
 ## Top ten words of each state. 
 def topWords(O, words, n=10):
@@ -60,3 +62,30 @@ def graphHMM(A):
 At = [[.7, .4, .5], [.3, .6, .8], [.5, .6, .7]]
 graphHMM(At)
 """
+
+def graphHeatMap(A):
+    print A
+    # make values from -5 to 5, for this example
+    zvals = np.random.rand(100,100)*10-5
+
+    # make a color map of fixed colors
+    cmap = colors.ListedColormap(['blue','black','red'])
+    bounds=[-6,-2,2,6]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
+
+    # tell imshow about color map so that only set colors are used
+    img = plt.imshow(zvals,interpolation='nearest',
+                        cmap = cmap,norm=norm)
+
+    # make a color bar
+    plt.colorbar(img,cmap=cmap,
+                    norm=norm,boundaries=bounds,ticks=[-5,0,5])
+
+    plt.show()
+
+def main():
+    A, O = gen.get_HMM('spenspear_12_states')
+    graphHeatMap(A)
+
+if __name__ == "__main__":
+    main()

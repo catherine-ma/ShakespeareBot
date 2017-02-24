@@ -13,6 +13,7 @@ import json
 import string
 import re
 import os
+import sys
 
 WORD_LIST_JSON = "words.json"
 ST_FILE = "st_words.json"
@@ -29,6 +30,8 @@ NUM_TO_WORD_DICT = "num_to_word_dict.json"
 
 DATA_FILE = os.path.join("data", "shakespeare.txt")
 SPENSER_FILE = os.path.join("data", "spenser.txt")
+BEE_RAW_FILE = os.path.join("data", "bee_raw.txt")
+BEE_FILE = os.path.join("data", "bee.txt")
 
 def tokenize(lines):
     '''
@@ -197,6 +200,16 @@ def process_text(file_name):
     return poem_lines
 
 
+def process_bee_text(file_name):
+    tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+    fp = open(file_name)
+    data = fp.read()
+    lines = tokenizer.tokenize(data)
+    with open(BEE_FILE, 'w') as f:
+        for l in lines:
+            f.write(l + "\n")
+
+
 def get_rhyme_pairs(poems):
     rhyme_pairs = []
 
@@ -251,18 +264,24 @@ def merge_dicts(d1, d2):
     d.update(d2)
     return d
 
-def process_data(use_spenser=False):
+def process_data(dataset):
     '''
     Call this one to do everything lol.
     '''
-    lines = process_text(DATA_FILE)
-    if use_spenser:
+    if dataset == "shakespeare":
+        lines = process_text(DATA_FILE)
+        DEST = "data"
+    if dataset == "spenspear":
+        lines = process_text(DATA_FILE)
         lines.extend(process_text(SPENSER_FILE))
-    # lines = process_text('data/sonnet1.txt')
-
-    DEST = "data"
-    if use_spenser:
         DEST = os.path.join("data", "spenspear")
+    if dataset == "beemovie":
+        process_bee_text(BEE_RAW_FILE)
+        lines = process_text(BEE_FILE)
+        DEST = os.path.join("data", "bee")
+    else:
+        print "dataset " + dataset  + " not found"
+        sys.exit()
 
     # tokenize
     tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
@@ -283,10 +302,10 @@ def process_data(use_spenser=False):
     write_data(os.path.join(DEST, REVERSE_NUM_TOKENIZED), num_tokenized_lines)
 
     # rhyme
-    poems = process_text_by_poem(DATA_FILE)
-    rhyme_pairs = get_rhyme_pairs(poems)
-    num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
-    write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
+    # poems = process_text_by_poem(DATA_FILE)
+    # rhyme_pairs = get_rhyme_pairs(poems)
+    # num_rhyme_pairs = word_to_num(rhyme_pairs, wordset)
+    # write_data(os.path.join(DEST, RHYME_PAIRS_NUM), num_rhyme_pairs)
 
     ## stress
     ## DO NOT TOUCH. DO NOT UNCOMMENT. THE GENERATED FILE IS BEING MANUALLY
@@ -299,8 +318,11 @@ def process_data(use_spenser=False):
 
 # This main is for testing purposes only
 def main():
-    use_spenser = False
-    process_data(use_spenser)
+    # dataset = "shakespeare"
+    # dataset = "spenspear"
+    dataset = "beemovie"
+
+    process_data(dataset)
 
     # lines = process_text(DATA_FILE)
     # tokenized_lines, wordset, st_words, punctuation, worddict = tokenize(lines)
