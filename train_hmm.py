@@ -63,9 +63,9 @@ def writeModel(A, O, name):
 #writeModel(At, Ot, "test")
 
 def main():
-    X = read_data('data/spenspear/reverse_num_tokenized.json')
+    X = read_data('data/bee/reverse_num_tokenized.json')
     
     # Change the number of states and model name here before your run!!!!!!!
-    train(X, 12, 'spenspear_12_states')
+    train(X, 9, 'bee_9_states')
 
 main()
