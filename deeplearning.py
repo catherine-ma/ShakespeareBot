@@ -54,30 +54,6 @@ def process_words(file_name):
 
     return words
 
-def prep_dataset(raw_text):
-    words = sorted(list(set(text)))
-    word_to_int = dict((c, i) for i, c in enumerate(chars))
-
-    n_words = len(text)
-    n_vocab = len(words)
-
-    seq_length = 5
-
-    dataX = []
-    dataY = []
-
-    for i in range(n_words - seq_length):
-        seq_in = raw_text[i:i+seq_length]
-        seq_out = raw_text[i+seq_length]
-        dataX.append([word_to_int[word] for word in seq_in])
-        dataY.append(word_to_int[seq_out])
-
-    n_patterns = len(dataX)
-
-    X = np.reshape(dataX, (n_patterns, seq_length, 1))
-    X = X / float(n_vocab)
-    y = np_utils.to_categorical(dataY)
-
     return X, y
 
 if __name__ == '__main__':
