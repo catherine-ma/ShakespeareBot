@@ -3,6 +3,7 @@ import numpy as np
 import networkx as nx
 from preprocessing import read_word_list
 from matplotlib import colors
+import matplotlib.pyplot as plt
 import generation as gen
 import os
 
@@ -91,22 +92,29 @@ graphHMM(At)
 """
 
 def graphHeatMap(A):
-    print A
+    # print A
     # make values from -5 to 5, for this example
-    zvals = np.random.rand(100,100)*10-5
+    # zvals = np.random.rand(100,100)*10-5
+    # a = np.random.random((16, 16))
+    A = np.asarray(A).T
+    # print zvals
+    img = plt.imshow(A, cmap='hot', interpolation='nearest')
 
-    # make a color map of fixed colors
-    cmap = colors.ListedColormap(['blue','black','red'])
-    bounds=[-6,-2,2,6]
-    norm = colors.BoundaryNorm(bounds, cmap.N)
+    # # make a color map of fixed colors
+    # cmap = colors.ListedColormap(['blue','black','red'])
+    # bounds=[-6,-2,2,6]
+    # norm = colors.BoundaryNorm(bounds, cmap.N)
 
-    # tell imshow about color map so that only set colors are used
-    img = plt.imshow(zvals,interpolation='nearest',
-                        cmap = cmap,norm=norm)
+    # # tell imshow about color map so that only set colors are used
+    # img = plt.imshow(zvals,interpolation='nearest',
+    #                     cmap = cmap,norm=norm)
 
-    # make a color bar
-    plt.colorbar(img,cmap=cmap,
-                    norm=norm,boundaries=bounds,ticks=[-5,0,5])
+    # # make a color bar
+    # plt.colorbar(img,cmap=cmap,norm=norm,boundaries=bounds,ticks=[-5,0,5])
+    plt.colorbar(img)
+
+    plt.xlabel('Current State')
+    plt.ylabel('Destination State')
 
     plt.show()
 
