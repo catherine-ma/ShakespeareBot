@@ -10,9 +10,11 @@ import generation as gn
 
 def main():
     A, O = gn.get_HMM('spenspear_10_states')
-    encoding = gn.read_data(os.path.join("data", "spenspear", gn.WORD_LIST_JSON))
-    for t in topWords(O, encoding, 'spenspear_10_states'):
-        print t
+    # encoding = gn.read_data(os.path.join("data", "spenspear", gn.WORD_LIST_JSON))
+    # for t in topWords(O, encoding, 'spenspear_10_states'):
+    #     print t
+
+    graphHeatMap(A)
 
 ## Top ten words of each state. 
 def topWords(O, words, name, n=10):
@@ -108,9 +110,7 @@ def graphHeatMap(A):
 
     plt.show()
 
-# def main():
-#     A, O = gen.get_HMM('spenspear_12_states')
-#     graphHeatMap(A)
+
 
 if __name__ == "__main__":
     main()

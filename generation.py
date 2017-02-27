@@ -258,5 +258,5 @@ def make_haiku(DEST):
     write_poem(poem, 'Haiku_spenspear_states10')    
     
 DEST = os.path.join("data", "spenspear")
-DEST = os.path.join("data", "bee")
+# DEST = os.path.join("data", "bee")
 make_sonnet(DEST, naive=False)
